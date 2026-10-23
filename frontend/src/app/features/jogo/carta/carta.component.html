@@ -1,0 +1,23 @@
+<article class="carta" [attr.aria-labelledby]="'titulo-carta-' + carta().id">
+  <header class="carta__cabecalho">
+    <div>
+      <p class="carta__categoria">{{ carta().categoria }}</p>
+      <p class="carta__tema">{{ carta().tema }}</p>
+    </div>
+    <div class="carta__numero" aria-hidden="true">{{ carta().numero | numeroCarta }}</div>
+  </header>
+
+  <h2 id="titulo-carta-{{ carta().id }}" class="sr-only">
+    Citação {{ carta().numero }} de {{ total() }}
+  </h2>
+
+  <blockquote class="carta__citacao">
+    <p>{{ carta().citacao }}</p>
+  </blockquote>
+
+  <footer class="carta__rodape">
+    <span>carta {{ carta().numero }} de {{ total() }}</span>
+    <span class="carta__filete" aria-hidden="true"></span>
+    <span>leia com atenção</span>
+  </footer>
+</article>

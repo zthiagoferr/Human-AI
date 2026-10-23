@@ -1,0 +1,76 @@
+<main class="pagina">
+  <div class="grade-login">
+    <section class="grade-login__marca" aria-labelledby="titulo-recuperar">
+      <app-marca tamanho="grande" />
+      <p class="eyebrow" style="margin-top: var(--esp-7)">Recuperar acesso</p>
+      <h1 id="titulo-recuperar" class="titulo-display">
+        Uma nova<br />
+        senha,<br />
+        <em>sem perder a leitura.</em>
+      </h1>
+      <p class="lead" style="margin-top: var(--esp-5)">
+        Informe o e-mail da sua conta. Enviaremos um link seguro para você criar
+        uma nova senha.
+      </p>
+      <div class="nota-demo">
+        <span class="nota-demo__rotulo">Firebase Authentication</span>
+        <p>
+          O envio é feito pelo Firebase. Por segurança, não informamos se um e-mail
+          está ou não cadastrado.
+        </p>
+      </div>
+    </section>
+
+    <section class="grade-login__formulario" aria-labelledby="titulo-enviar">
+      <p class="eyebrow">Senha esquecida</p>
+      <h2 id="titulo-enviar">Redefinir senha</h2>
+
+      @if (erro()) {
+        <app-aviso [mensagem]="erro()!" tipo="erro" />
+      }
+
+      @if (enviado()) {
+        <app-aviso
+          mensagem="Se este e-mail estiver cadastrado, enviaremos um link para redefinir a senha. Verifique também a caixa de spam."
+          tipo="sucesso"
+        />
+        <div class="formulario__acoes">
+          <a class="botao botao--primario botao--largo" routerLink="/login">
+            Voltar para o login
+          </a>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="campo">
+            <label class="campo__rotulo" for="email">E-mail</label>
+            <input
+              id="email"
+              class="campo__controle"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              autocapitalize="none"
+              spellcheck="false"
+              [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+              aria-describedby="ajuda-email erro-email"
+            />
+            <span id="ajuda-email" class="campo__ajuda">O e-mail usado no cadastro.</span>
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span id="erro-email" class="campo__erro">Informe um e-mail válido.</span>
+            }
+          </div>
+
+          <div class="formulario__acoes">
+            <button class="botao botao--primario botao--largo" type="submit" [disabled]="carregando()">
+              {{ carregando() ? 'Enviando…' : 'Enviar link de recuperação' }}
+            </button>
+            <div class="divisor">ou</div>
+            <a class="botao botao--secundario botao--largo" routerLink="/login">
+              Voltar para o login
+            </a>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+</main>

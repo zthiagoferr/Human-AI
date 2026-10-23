@@ -1,0 +1,113 @@
+.item {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  gap: var(--esp-5);
+  padding: var(--esp-5) 0;
+  border-bottom: 1px solid var(--cor-filete);
+}
+
+.item:first-child {
+  padding-top: 0;
+}
+
+.item__numero {
+  color: var(--cor-tinta-fantasma);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-2xl);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.item__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  margin-bottom: var(--esp-3);
+}
+
+.item__categoria {
+  margin: 0;
+  color: var(--cor-acento);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.item__tema {
+  margin: 0.1rem 0 0;
+  color: var(--cor-tinta-suave);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-sm);
+  font-style: italic;
+}
+
+.item__citacao {
+  margin: 0 0 var(--esp-4);
+  padding-left: var(--esp-4);
+  border-left: 2px solid var(--cor-filete);
+  color: var(--cor-tinta-media);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-md);
+  line-height: 1.5;
+}
+
+.item__respostas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-5);
+  margin-bottom: var(--esp-4);
+}
+
+.item__resposta {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.item__rotulo {
+  color: var(--cor-tinta-fantasma);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.item__resposta strong {
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-md);
+  font-weight: 500;
+}
+
+.item__analise {
+  padding: var(--esp-4);
+  background: rgba(123, 45, 38, 0.045);
+  border-left: 3px solid var(--cor-acento);
+}
+
+.item__analise-rotulo {
+  margin: 0 0 var(--esp-1);
+  color: var(--cor-acento);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.item__analise-texto {
+  margin: 0;
+  color: var(--cor-tinta-media);
+  font-size: var(--texto-sm);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+@media (max-width: 620px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: var(--esp-2);
+  }
+
+  .item__numero {
+    font-size: var(--texto-lg);
+  }
+}

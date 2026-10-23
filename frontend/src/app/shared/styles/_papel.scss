@@ -1,0 +1,106 @@
+.folha {
+  position: relative;
+  background: var(--cor-papel-claro);
+  border: 1px solid var(--cor-filete);
+  border-radius: var(--raio);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 18px 40px -24px var(--cor-sombra);
+}
+
+.folha--interna::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(168, 146, 114, 0.45);
+  pointer-events: none;
+}
+
+.folha__conteudo {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.filete {
+  height: 1px;
+  border: 0;
+  background: var(--cor-filete);
+}
+
+.filete--curto {
+  width: 40px;
+  height: 1px;
+  border: 0;
+  background: var(--cor-acento);
+}
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-2);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--cor-filete);
+  border-radius: 999px;
+  color: var(--cor-tinta-suave);
+  font-size: var(--texto-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.selo--acerto {
+  border-color: color-mix(in srgb, var(--cor-acerto) 50%, transparent);
+  color: var(--cor-acerto);
+}
+
+.selo--erro {
+  border-color: color-mix(in srgb, var(--cor-erro) 50%, transparent);
+  color: var(--cor-erro);
+}
+
+.faixa-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--cor-filete);
+  border-bottom: 1px solid var(--cor-filete);
+}
+
+.faixa-resumo__item {
+  padding: var(--esp-4) var(--esp-3);
+  border-right: 1px solid var(--cor-filete);
+}
+
+.faixa-resumo__item:last-child {
+  border-right: 0;
+}
+
+.faixa-resumo__rotulo {
+  display: block;
+  color: var(--cor-tinta-suave);
+  font-size: var(--texto-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.faixa-resumo__valor {
+  display: block;
+  margin-top: var(--esp-1);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-2xl);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+@media (max-width: 680px) {
+  .faixa-resumo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .faixa-resumo__item:nth-child(2) {
+    border-right: 0;
+  }
+
+  .faixa-resumo__item:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--cor-filete);
+  }
+}

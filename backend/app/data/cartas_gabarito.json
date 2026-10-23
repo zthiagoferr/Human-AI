@@ -1,0 +1,204 @@
+{
+  "versao": 1,
+  "fonte": "Jogo Humano ou IA - 22 Cartas e Gabarito Separado (1).pdf",
+  "cartas": [
+    {
+      "id": "01",
+      "numero": 1,
+      "citacao": "\"A poesia não é uma liberação da emoção, mas uma fuga da emoção; não é a expressão da personalidade, mas uma fuga da personalidade.\"",
+      "categoria": "LITERATURA & FILOSOFIA",
+      "tema": "Poesia & Arte",
+      "origem": "humano",
+      "analise": "Paradoxo filosófico profundo sobre criação artística e despersonalização."
+    },
+    {
+      "id": "02",
+      "numero": 2,
+      "citacao": "\"O pôr do sol dourava as copas das árvores na floresta silenciosa. As folhas sussurravam segredos antigos ao vento fresco da tarde, enquanto o rio fluía suavemente como um colar de prata.\"",
+      "categoria": "DESCRIÇÃO DE NATUREZA",
+      "tema": "Paisagem",
+      "origem": "ia",
+      "analise": "Acúmulo de adjetivação genérica e metáforas previsíveis (pôr do sol dourado, colar de prata)."
+    },
+    {
+      "id": "03",
+      "numero": 3,
+      "citacao": "\"Eles me disseram que o tempo cura todas as feridas, mas a verdade é que o tempo apenas constrói uma cicatriz sobre a dor para que possamos caminhar sem sangrar em público.\"",
+      "categoria": "SENTIMENTO & SOCIEDADE",
+      "tema": "Tempo & Dor",
+      "origem": "humano",
+      "analise": "Metáfora dolorosa e visceral sobre sofrimento psíquico e aparência social."
+    },
+    {
+      "id": "04",
+      "numero": 4,
+      "citacao": "\"A biblioteca é um templo de conhecimento onde os livros são janelas para o infinito. Cada página lida é um degrau na escada da sabedoria humana.\"",
+      "categoria": "IMPORTÂNCIA DA LEITURA",
+      "tema": "Biblioteca",
+      "origem": "ia",
+      "analise": "Metáforas hiper-utilizadas e previsíveis sobre bibliotecas (\"templo\", \"janelas para o infinito\")."
+    },
+    {
+      "id": "05",
+      "numero": 5,
+      "citacao": "\"A tecnologia moderna nos conecta de formas sem precedentes, oferecendo infinitas possibilidades de aprendizado e colaboração global em tempo real.\"",
+      "categoria": "TECNOLOGIA & SOCIEDADE",
+      "tema": "Conexão Digital",
+      "origem": "ia",
+      "analise": "Tom institucional totalmente neutro e genérico sobre tecnologia."
+    },
+    {
+      "id": "06",
+      "numero": 6,
+      "citacao": "\"Na verdade, eu não sei o que estou procurando no livro. Só sei que quando o abro, o barulho do mundo lá fora diminui um pouco.\"",
+      "categoria": "EXPERIÊNCIA DO LEITOR",
+      "tema": "Leitura Íntima",
+      "origem": "humano",
+      "analise": "Expressa a imperfeição subjetiva, silêncio e busca pessoal da leitura."
+    },
+    {
+      "id": "07",
+      "numero": 7,
+      "citacao": "\"Há silêncios que dizem tanto que a gente até se assusta com o barulho que eles fazem por dentro.\"",
+      "categoria": "INTROSPECÇÃO",
+      "tema": "Silêncio",
+      "origem": "humano",
+      "analise": "Sinestesia poética (\"barulho que o silêncio faz por dentro\")."
+    },
+    {
+      "id": "08",
+      "numero": 8,
+      "citacao": "\"Em suma, a análise dos dados revela que o desenvolvimento sustentável requer um equilíbrio harmonioso entre progresso econômico e preservação ambiental.\"",
+      "categoria": "DISCURSO ACADÊMICO",
+      "tema": "Sustentabilidade",
+      "origem": "ia",
+      "analise": "Conclusão acadêmica genérica recheada de chavões (\"equilíbrio harmonioso\")."
+    },
+    {
+      "id": "09",
+      "numero": 9,
+      "citacao": "\"O mar não tem memória. Ele apaga na areia tudo o que a gente tenta escrever, como se quisesse nos lembrar que nada dura para sempre.\"",
+      "categoria": "REFLEXÃO POÉTICA",
+      "tema": "Impermanência",
+      "origem": "humano",
+      "analise": "Personificação do mar com tom melancólico sobre a finitude."
+    },
+    {
+      "id": "10",
+      "numero": 10,
+      "citacao": "\"É fundamental destacar que a inteligência artificial oferece ferramentas valiosas para otimizar processos em diversas áreas do conhecimento.\"",
+      "categoria": "ENSAIO OPINATIVO",
+      "tema": "Ferramentas de IA",
+      "origem": "ia",
+      "analise": "Linguagem extremamente neutra com conector clássico de LLMs."
+    },
+    {
+      "id": "11",
+      "numero": 11,
+      "citacao": "\"O esquecimento é uma tesoura amolada que vai cortando os laços do passado até que a gente se torne um estranho na própria história.\"",
+      "categoria": "LITERATURA CONTEMPORÂNEA",
+      "tema": "Memória & Passado",
+      "origem": "humano",
+      "analise": "Imagem forte e incomum (\"esquecimento é uma tesoura amolada\")."
+    },
+    {
+      "id": "12",
+      "numero": 12,
+      "citacao": "\"No mundo acelerado de hoje, a leitura desempenha um papel crucial no aprimoramento do pensamento crítico e no enriquecimento do vocabulário.\"",
+      "categoria": "SOCIEDADE",
+      "tema": "Leitura Moderna",
+      "origem": "ia",
+      "analise": "Uso da fórmula clichê mais comum de introduções geradas por IA."
+    },
+    {
+      "id": "13",
+      "numero": 13,
+      "citacao": "\"Tudo o que se inventa é verdadeiro, pode ter a certeza. A poesia é tão precisa como a geometria.\"",
+      "categoria": "POÉTICA",
+      "tema": "Arte & Verdade",
+      "origem": "humano",
+      "analise": "Contradição provocativa entre poesia e geometria típica do autor."
+    },
+    {
+      "id": "14",
+      "numero": 14,
+      "citacao": "\"A noite caiu sobre a cidade como um manto aveludado de mistério, enquanto as luzes piscavam como diamantes ao longe.\"",
+      "categoria": "NARRATIVA",
+      "tema": "Descrição Urbana",
+      "origem": "ia",
+      "analise": "Acúmulo de comparações lugar-comum (\"manto aveludado\", \"diamantes\")."
+    },
+    {
+      "id": "15",
+      "numero": 15,
+      "citacao": "\"Estar vivo é a coisa mais rara do mundo. A maioria das pessoas apenas existe, e isso é tudo.\"",
+      "categoria": "FILOSOFIA",
+      "tema": "Existência",
+      "origem": "humano",
+      "analise": "Aforisma provocativo e irônico sobre a passividade da vida humana."
+    },
+    {
+      "id": "16",
+      "numero": 16,
+      "citacao": "\"A empatia é a ponte invisível que une os corações humanos, permitindo-nos compreender a dor e a alegria do outro.\"",
+      "categoria": "RELAÇÕES",
+      "tema": "Empatia",
+      "origem": "ia",
+      "analise": "Afirmação bonita, porém conceitualmente vazia e genérica."
+    },
+    {
+      "id": "17",
+      "numero": 17,
+      "citacao": "\"Minha memória é um armazém de coisas inúteis e um deserto para o que realmente importa esquecer.\"",
+      "categoria": "INTROSPECÇÃO",
+      "tema": "Autocrítica",
+      "origem": "humano",
+      "analise": "Autocrítica psicológica profunda (\"armazém de coisas inúteis\")."
+    },
+    {
+      "id": "18",
+      "numero": 18,
+      "citacao": "\"Vale ressaltar que a preservação dos livros físicos continua sendo vital para a memória histórica das futuras gerações.\"",
+      "categoria": "ENSAIO",
+      "tema": "Preservação Cultural",
+      "origem": "ia",
+      "analise": "Uso de muleta linguística e vício de escrita comum em IAs."
+    },
+    {
+      "id": "19",
+      "numero": 19,
+      "citacao": "\"Em um mundo cada vez mais interconectado, é essencial cultivar habilidades interpessoais e a capacidade de adaptação.\"",
+      "categoria": "CORPORATIVO",
+      "tema": "Habilidades Globais",
+      "origem": "ia",
+      "analise": "Frases prontas sobre soft skills em tom professoral corporativo."
+    },
+    {
+      "id": "20",
+      "numero": 20,
+      "citacao": "\"Escrever é fácil: você apenas senta em frente à máquina de escrever e sangra.\"",
+      "categoria": "PROCESSO CRIATIVO",
+      "tema": "Escrita & Esforço",
+      "origem": "humano",
+      "analise": "Metáfora física e visceral (\"senta e sangra\") sobre o trabalho da escrita."
+    },
+    {
+      "id": "21",
+      "numero": 21,
+      "citacao": "\"Gosto de pessoas que têm a coragem de ser quem são, mesmo quando o mundo inteiro exige que sejam outra coisa.\"",
+      "categoria": "COMPORTAMENTO",
+      "tema": "Autenticidade",
+      "origem": "humano",
+      "analise": "Valorização da autenticidade e empatia interpessoal direta."
+    },
+    {
+      "id": "22",
+      "numero": 22,
+      "citacao": "\"O café estava frio, mas a conversa continuava quente, tecendo fios invisíveis entre duas pessoas que se conheciam há anos.\"",
+      "categoria": "PROSA NARRATIVA",
+      "tema": "Conexão Humana",
+      "origem": "ia",
+      "analise": "Antítese simples (frio/quente) e metáfora comum (\"fios invisíveis\")."
+    }
+  ]
+}

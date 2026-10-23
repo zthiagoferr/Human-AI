@@ -1,0 +1,25 @@
+.nota-demo {
+  max-width: 48ch;
+  margin-top: var(--esp-7);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-filete);
+  color: var(--cor-tinta-suave);
+  font-size: var(--texto-xs);
+}
+
+.nota-demo__rotulo {
+  display: block;
+  margin-bottom: var(--esp-2);
+  color: var(--cor-acento);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.nota-demo p {
+  margin: 0;
+}
+
+form {
+  margin-top: var(--esp-5);
+}

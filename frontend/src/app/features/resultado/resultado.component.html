@@ -1,0 +1,90 @@
+<main class="pagina">
+  <header class="topo">
+    <app-marca />
+    <div class="topo__acoes">
+      <button class="botao botao--texto" type="button" (click)="sair()">Sair</button>
+    </div>
+  </header>
+
+  @if (carregando()) {
+    <section class="estado" aria-live="polite">
+      <div class="estado__filete" aria-hidden="true"></div>
+      <p class="eyebrow">Conferindo</p>
+      <h1 class="estado__titulo">Conferindo suas respostas…</h1>
+    </section>
+  } @else if (erro()) {
+    <section class="estado">
+      <app-aviso [mensagem]="erro()!" tipo="erro" />
+      <button class="botao botao--secundario" type="button" (click)="jogarNovamente()">
+        Voltar ao jogo
+      </button>
+    </section>
+  } @else if (resultado(); as r) {
+    <section class="resultado" aria-labelledby="titulo-resultado">
+      <header class="resultado__cabecalho">
+        <div>
+          <p class="eyebrow">Resultado da partida</p>
+          <h1 id="titulo-resultado" class="resultado__titulo">
+            Sua leitura,<br />
+            <em>conferida.</em>
+          </h1>
+          <p class="lead">
+            Cada carta tem uma análise. Leia as que você errou com atenção especial:
+            o objetivo é observar como o texto foi construído, não apenas acertar.
+          </p>
+        </div>
+        <div class="resultado__placar" aria-label="Pontuação">
+          <span class="resultado__placar-numero">{{ r.acertos }}</span>
+          <span class="resultado__placar-total">de {{ r.totalPerguntas }}</span>
+          <span class="resultado__placar-rotulo">acertos</span>
+        </div>
+      </header>
+
+      <div class="faixa-resumo" aria-label="Resumo da partida">
+        <div class="faixa-resumo__item">
+          <span class="faixa-resumo__rotulo">Acertos</span>
+          <span class="faixa-resumo__valor">{{ r.acertos }}</span>
+        </div>
+        <div class="faixa-resumo__item">
+          <span class="faixa-resumo__rotulo">Erros</span>
+          <span class="faixa-resumo__valor">{{ r.erros }}</span>
+        </div>
+        <div class="faixa-resumo__item">
+          <span class="faixa-resumo__rotulo">Percentual</span>
+          <span class="faixa-resumo__valor">{{ formatarPercentual(r.percentual) }}</span>
+        </div>
+        <div class="faixa-resumo__item">
+          <span class="faixa-resumo__rotulo">Tempo</span>
+          <span class="faixa-resumo__valor">{{ r.duracaoMs | duracao }}</span>
+        </div>
+      </div>
+
+      @if (minhaPosicao(); as posicao) {
+        <p class="resultado__posicao" aria-live="polite">
+          Sua posição no ranking: <strong>{{ posicao.posicao | posicao }}</strong> lugar
+        </p>
+      }
+
+      <section class="correcao" aria-labelledby="titulo-correcao">
+        <div class="correcao__cabecalho">
+          <p class="eyebrow">Carta a carta</p>
+          <h2 id="titulo-correcao">Correção e análise</h2>
+        </div>
+
+        @for (item of r.correcao; track item.cartaId) {
+          <app-item-correcao [item]="item" />
+        }
+      </section>
+
+      <div class="resultado__acoes">
+        <button class="botao botao--primario" type="button" (click)="verRanking()">
+          Ver ranking da turma
+        </button>
+        <button class="botao botao--secundario" type="button" (click)="jogarNovamente()">
+          Jogar novamente
+        </button>
+        <button class="botao botao--texto" type="button" (click)="sair()">Sair</button>
+      </div>
+    </section>
+  }
+</main>

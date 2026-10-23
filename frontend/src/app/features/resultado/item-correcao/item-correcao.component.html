@@ -1,0 +1,33 @@
+<article class="item" [class.item--erro]="!item().acertou">
+  <div class="item__numero" aria-hidden="true">{{ item().numero | numeroCarta }}</div>
+
+  <div class="item__corpo">
+    <header class="item__cabecalho">
+      <div>
+        <p class="item__categoria">{{ item().categoria }}</p>
+        <p class="item__tema">{{ item().tema }}</p>
+      </div>
+      <span class="selo" [class.selo--acerto]="item().acertou" [class.selo--erro]="!item().acertou">
+        {{ item().acertou ? 'Acertou' : 'Errou' }}
+      </span>
+    </header>
+
+    <blockquote class="item__citacao">{{ item().citacao }}</blockquote>
+
+    <div class="item__respostas" aria-label="Comparação de respostas">
+      <div class="item__resposta">
+        <span class="item__rotulo">Sua resposta</span>
+        <strong>{{ rotulo(item().escolhaAluno) }}</strong>
+      </div>
+      <div class="item__resposta">
+        <span class="item__rotulo">Resposta correta</span>
+        <strong>{{ rotulo(item().respostaCorreta) }}</strong>
+      </div>
+    </div>
+
+    <div class="item__analise">
+      <p class="item__analise-rotulo">Análise da carta</p>
+      <p class="item__analise-texto">{{ item().analise }}</p>
+    </div>
+  </div>
+</article>

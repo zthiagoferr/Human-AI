@@ -1,0 +1,82 @@
+<main class="pagina">
+  <div class="grade-login">
+    <section class="grade-login__marca" aria-labelledby="titulo-login">
+      <app-marca tamanho="grande" />
+      <p class="eyebrow" style="margin-top: var(--esp-7)">Uma experiência de leitura</p>
+      <h1 id="titulo-login" class="titulo-display">
+        Toda voz<br />
+        tem uma<br />
+        <em>assinatura.</em>
+      </h1>
+      <p class="lead" style="margin-top: var(--esp-5)">
+        Leia 22 citações e decida o que parece ter sido escrito por uma pessoa — e o
+        que parece ter saído de uma máquina. No fim, você vê a análise de cada carta.
+      </p>
+      <div class="nota-demo">
+        <span class="nota-demo__rotulo">Autenticação segura</span>
+        <p>
+          O acesso é feito pelo Firebase Authentication. Sua senha não passa pelo
+          servidor do jogo. Este ambiente deve ser publicado apenas com HTTPS.
+        </p>
+      </div>
+    </section>
+
+    <section class="grade-login__formulario" aria-labelledby="titulo-entrar">
+      <p class="eyebrow">Acesso do aluno</p>
+      <h2 id="titulo-entrar">Entrar na leitura</h2>
+      <p class="texto-suave">Use o e-mail e a senha da sua conta.</p>
+
+      @if (erro()) {
+        <app-aviso [mensagem]="erro()!" tipo="erro" />
+      }
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+        <div class="campo">
+          <label class="campo__rotulo" for="email">E-mail</label>
+          <input
+            id="email"
+            class="campo__controle"
+            type="email"
+            formControlName="email"
+            autocomplete="username"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+            aria-describedby="ajuda-email erro-email"
+          />
+          <span id="ajuda-email" class="campo__ajuda">O e-mail usado no cadastro.</span>
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <span id="erro-email" class="campo__erro">Informe um e-mail válido.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="senha">Senha</label>
+          <input
+            id="senha"
+            class="campo__controle"
+            type="password"
+            formControlName="senha"
+            autocomplete="current-password"
+            [attr.aria-invalid]="form.controls.senha.invalid && form.controls.senha.touched"
+            aria-describedby="erro-senha"
+          />
+          @if (form.controls.senha.touched && form.controls.senha.invalid) {
+            <span id="erro-senha" class="campo__erro">Informe sua senha.</span>
+          }
+        </div>
+
+        <div class="formulario__acoes">
+          <button class="botao botao--primario botao--largo" type="submit" [disabled]="carregando()">
+            {{ carregando() ? 'Entrando…' : 'Entrar' }}
+          </button>
+          <a class="link-recuperar" routerLink="/recuperar-senha">Esqueci minha senha</a>
+          <div class="divisor">ou</div>
+          <a class="botao botao--secundario botao--largo" routerLink="/registrar">
+            Criar conta de aluno
+          </a>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>

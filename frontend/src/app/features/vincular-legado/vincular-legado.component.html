@@ -1,0 +1,79 @@
+<main class="pagina">
+  <div class="grade-login">
+    <section class="grade-login__marca" aria-labelledby="titulo-vincular">
+      <app-marca tamanho="grande" />
+      <p class="eyebrow" style="margin-top: var(--esp-7)">Conta antiga</p>
+      <h1 id="titulo-vincular" class="titulo-display">
+        Seu histórico<br />
+        continua<br />
+        <em>com você.</em>
+      </h1>
+      <p class="lead" style="margin-top: var(--esp-5)">
+        Se você já jogava antes da migração, peça um código ao professor e
+        vincule sua conta antiga a este novo acesso.
+      </p>
+      <div class="nota-demo">
+        <span class="nota-demo__rotulo">Antes de jogar</span>
+        <p>
+          Faça o vínculo antes de iniciar uma nova partida. Assim, suas partidas e
+          sua posição no ranking são preservadas.
+        </p>
+      </div>
+    </section>
+
+    <section class="grade-login__formulario" aria-labelledby="titulo-codigo">
+      <p class="eyebrow">Vincular conta</p>
+      <h2 id="titulo-codigo">Código do professor</h2>
+
+      @if (erro()) {
+        <app-aviso [mensagem]="erro()!" tipo="erro" />
+      }
+
+      @if (concluido()) {
+        <app-aviso
+          mensagem="Conta antiga vinculada. Suas partidas e seu histórico foram preservados."
+          tipo="sucesso"
+        />
+        <div class="formulario__acoes">
+          <button class="botao botao--primario botao--largo" type="button" (click)="irParaJogo()">
+            Ir para o jogo
+          </button>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+          <div class="campo">
+            <label class="campo__rotulo" for="codigo">Código</label>
+            <input
+              id="codigo"
+              class="campo__controle"
+              type="text"
+              formControlName="codigo"
+              autocomplete="one-time-code"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="XXXXX-XXXXX"
+              [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+              aria-describedby="ajuda-codigo erro-codigo"
+            />
+            <span id="ajuda-codigo" class="campo__ajuda">
+              O código é individual e expira. Não o compartilhe.
+            </span>
+            @if (form.controls.codigo.touched && form.controls.codigo.invalid) {
+              <span id="erro-codigo" class="campo__erro">Informe o código.</span>
+            }
+          </div>
+
+          <div class="formulario__acoes">
+            <button class="botao botao--primario botao--largo" type="submit" [disabled]="carregando()">
+              {{ carregando() ? 'Vinculando…' : 'Vincular conta antiga' }}
+            </button>
+            <div class="divisor">ou</div>
+            <a class="botao botao--secundario botao--largo" routerLink="/jogo">
+              Voltar ao jogo
+            </a>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+</main>

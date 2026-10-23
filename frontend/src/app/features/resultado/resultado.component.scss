@@ -1,0 +1,123 @@
+.resultado {
+  max-width: 980px;
+  margin-inline: auto;
+}
+
+.resultado__cabecalho {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--esp-6);
+  align-items: end;
+  margin-bottom: var(--esp-6);
+}
+
+.resultado__titulo {
+  margin-bottom: var(--esp-3);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  line-height: 0.98;
+}
+
+.resultado__titulo em {
+  color: var(--cor-acento);
+  font-weight: 400;
+}
+
+.resultado__placar {
+  display: grid;
+  justify-items: end;
+  padding-left: var(--esp-5);
+  border-left: 1px solid var(--cor-filete);
+}
+
+.resultado__placar-numero {
+  font-family: var(--fonte-serifa);
+  font-size: clamp(3.5rem, 8vw, 5.5rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+}
+
+.resultado__placar-total {
+  color: var(--cor-tinta-suave);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-md);
+}
+
+.resultado__placar-rotulo {
+  margin-top: var(--esp-1);
+  color: var(--cor-tinta-fantasma);
+  font-size: var(--texto-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.resultado__posicao {
+  margin: var(--esp-4) 0 0;
+  color: var(--cor-tinta-suave);
+  font-size: var(--texto-sm);
+}
+
+.resultado__posicao strong {
+  color: var(--cor-acento);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-lg);
+  font-weight: 500;
+}
+
+.correcao {
+  margin-top: var(--esp-7);
+}
+
+.correcao__cabecalho {
+  margin-bottom: var(--esp-4);
+}
+
+.correcao__cabecalho h2 {
+  margin-bottom: 0;
+  font-size: var(--texto-2xl);
+}
+
+.resultado__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-3);
+  margin-top: var(--esp-6);
+  padding-top: var(--esp-5);
+  border-top: 1px solid var(--cor-filete);
+}
+
+.estado {
+  max-width: 620px;
+  margin: clamp(3rem, 12vh, 8rem) auto;
+  text-align: center;
+}
+
+.estado__filete {
+  width: 60px;
+  height: 1px;
+  margin: 0 auto var(--esp-5);
+  background: var(--cor-acento);
+}
+
+.estado__titulo {
+  font-size: var(--texto-2xl);
+}
+
+.estado app-aviso {
+  display: block;
+  margin-bottom: var(--esp-4);
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .resultado__cabecalho {
+    grid-template-columns: 1fr;
+  }
+
+  .resultado__placar {
+    justify-items: start;
+    padding-left: 0;
+    padding-top: var(--esp-3);
+    border-left: 0;
+    border-top: 1px solid var(--cor-filete);
+  }
+}

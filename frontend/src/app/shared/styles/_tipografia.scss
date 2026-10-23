@@ -1,0 +1,73 @@
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 var(--esp-3);
+  font-family: var(--fonte-serifa);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+  color: var(--cor-tinta);
+}
+
+h1 {
+  font-size: var(--texto-3xl);
+}
+
+h2 {
+  font-size: var(--texto-2xl);
+}
+
+h3 {
+  font-size: var(--texto-xl);
+}
+
+p {
+  margin: 0 0 var(--esp-4);
+}
+
+small {
+  font-size: var(--texto-sm);
+}
+
+strong {
+  font-weight: 600;
+}
+
+.texto-serif {
+  font-family: var(--fonte-serifa);
+}
+
+.texto-suave {
+  color: var(--cor-tinta-suave);
+}
+
+.texto-acento {
+  color: var(--cor-acento);
+}
+
+.eyebrow {
+  margin: 0 0 var(--esp-3);
+  color: var(--cor-tinta-suave);
+  font-family: var(--fonte-ui);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.titulo-display {
+  font-size: var(--texto-4xl);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+.lead {
+  max-width: 54ch;
+  color: var(--cor-tinta-media);
+  font-size: var(--texto-md);
+}
+
+.numero-tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,55 @@
+:root {
+  --cor-papel: #f2e9da;
+  --cor-papel-claro: #faf5ea;
+  --cor-papel-escuro: #e4d6bf;
+  --cor-papel-fundo: #ede2d0;
+
+  --cor-tinta: #1c1914;
+  --cor-tinta-media: #3b342a;
+  --cor-tinta-suave: #5f5546;
+  --cor-tinta-fantasma: #8a7d69;
+
+  --cor-acento: #7b2d26;
+  --cor-acento-escuro: #5b1f1a;
+  --cor-acento-claro: #a65a50;
+
+  --cor-filete: #c9b99e;
+  --cor-filete-forte: #a89272;
+  --cor-acerto: #2e5b45;
+  --cor-erro: #8b3a2b;
+  --cor-foco: #8a5a2b;
+  --cor-sombra: rgba(28, 25, 20, 0.12);
+  --cor-sombra-forte: rgba(28, 25, 20, 0.2);
+
+  --fonte-serifa: "EB Garamond", "Iowan Old Style", "Palatino Linotype", Palatino,
+    Georgia, "Times New Roman", serif;
+  --fonte-ui: "Avenir Next", Avenir, "Segoe UI", system-ui, -apple-system,
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fonte-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --texto-xs: 0.75rem;
+  --texto-sm: 0.875rem;
+  --texto-base: 1rem;
+  --texto-md: 1.125rem;
+  --texto-lg: 1.375rem;
+  --texto-xl: 1.75rem;
+  --texto-2xl: 2.25rem;
+  --texto-3xl: 3rem;
+  --texto-4xl: clamp(2.5rem, 6vw, 4.5rem);
+
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 0.75rem;
+  --esp-4: 1rem;
+  --esp-5: 1.5rem;
+  --esp-6: 2rem;
+  --esp-7: 3rem;
+  --esp-8: 4rem;
+  --esp-9: 6rem;
+
+  --largura-conteudo: 1180px;
+  --largura-leitura: 760px;
+  --largura-formulario: 440px;
+  --altura-controle: 48px;
+  --raio: 2px;
+}

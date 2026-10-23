@@ -1,0 +1,110 @@
+<main class="pagina">
+  <header class="topo">
+    <app-marca />
+    <div class="topo__acoes">
+      <button class="botao botao--texto" type="button" (click)="sair()">Sair</button>
+    </div>
+  </header>
+
+  <section class="ranking" aria-labelledby="titulo-ranking">
+    <header class="ranking__cabecalho">
+      <div>
+        <p class="eyebrow">Depois da leitura</p>
+        <h1 id="titulo-ranking" class="ranking__titulo">
+          Ranking da<br />
+          <em>turma.</em>
+        </h1>
+        <p class="lead">
+          Acertos primeiro; em caso de empate, menor tempo; depois, ordem alfabética.
+          O ranking é uma brincadeira de sala, não uma medida de inteligência.
+        </p>
+      </div>
+      <div class="ranking__meta">
+        <span class="ranking__meta-numero">{{ dados()?.totalParticipantes ?? 0 }}</span>
+        <span class="ranking__meta-rotulo">participantes</span>
+        <span class="ranking__atualizacao" aria-live="polite">
+          <span class="ranking__pulso" aria-hidden="true"></span>
+          {{ carregando() ? 'Atualizando…' : 'Atualizado às ' + atualizadoEm() }}
+        </span>
+      </div>
+    </header>
+
+    @if (erro()) {
+      <app-aviso [mensagem]="erro()!" tipo="erro" />
+    }
+
+    @if (dados()?.meuResultado; as meu) {
+      <section class="meu-resultado" aria-labelledby="titulo-meu-resultado">
+        <div class="meu-resultado__posicao">
+          <span class="meu-resultado__posicao-numero">{{ meu.posicao | posicao }}</span>
+          <span class="meu-resultado__posicao-rotulo">sua posição</span>
+        </div>
+        <div class="meu-resultado__dados">
+          <h2 id="titulo-meu-resultado">{{ meu.nome }}</h2>
+          <p>
+            {{ meu.acertos }} acertos · {{ meu.erros }} erros ·
+            {{ meu.duracaoMs | duracao }} · {{ meu.posicao | posicao }} lugar
+          </p>
+        </div>
+        <button class="botao botao--secundario" type="button" (click)="atualizarAgora()">
+          Atualizar agora
+        </button>
+      </section>
+    }
+
+    @if (!dados() && carregando()) {
+      <p class="ranking__vazio">Carregando o ranking…</p>
+    } @else if (dados() && dados()!.itens.length === 0) {
+      <div class="ranking__vazio">
+        <p class="eyebrow">Ainda sem partidas</p>
+        <p>Ninguém concluiu uma partida. Seja a primeira pessoa a aparecer aqui.</p>
+      </div>
+    } @else if (dados(); as d) {
+      <div class="tabela-envolucro">
+        <table class="tabela">
+          <caption class="sr-only">
+            Ranking da turma por acertos, tempo e ordem alfabética
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Pos.</th>
+              <th scope="col">Aluno</th>
+              <th scope="col" class="tabela__numero">Acertos</th>
+              <th scope="col" class="tabela__numero">Erros</th>
+              <th scope="col" class="tabela__numero">Tempo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of d.itens; track item.usuarioId) {
+              <tr [class.tabela__linha--eu]="ehMeu(item)" [attr.aria-current]="ehMeu(item)">
+                <td class="tabela__posicao">{{ item.posicao | posicao }}</td>
+                <td class="tabela__nome">
+                  {{ item.nome }}
+                  @if (ehMeu(item)) {
+                    <span class="tabela__voce">você</span>
+                  }
+                </td>
+                <td class="tabela__numero">{{ item.acertos }}</td>
+                <td class="tabela__numero tabela__numero--suave">{{ item.erros }}</td>
+                <td class="tabela__numero">{{ item.duracaoMs | duracao }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (d.totalParticipantes > d.itens.length) {
+        <p class="ranking__nota">
+          Exibindo os {{ d.itens.length }} primeiros de {{ d.totalParticipantes }}
+          participantes.
+        </p>
+      }
+    }
+
+    <div class="ranking__acoes">
+      <button class="botao botao--primario" type="button" (click)="jogarNovamente()">
+        Jogar novamente
+      </button>
+      <button class="botao botao--texto" type="button" (click)="sair()">Sair</button>
+    </div>
+  </section>
+</main>

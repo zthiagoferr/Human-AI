@@ -1,0 +1,116 @@
+.carta {
+  position: relative;
+  background: var(--cor-papel-claro);
+  border: 1px solid var(--cor-filete);
+  border-radius: var(--raio);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 18px 40px -24px var(--cor-sombra);
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+.carta::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(168, 146, 114, 0.45);
+  pointer-events: none;
+}
+
+.carta__cabecalho {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  padding-bottom: var(--esp-4);
+  border-bottom: 1px solid var(--cor-filete);
+}
+
+.carta__categoria {
+  margin: 0;
+  color: var(--cor-acento);
+  font-size: var(--texto-xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.carta__tema {
+  margin: var(--esp-1) 0 0;
+  color: var(--cor-tinta-suave);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-md);
+  font-style: italic;
+}
+
+.carta__numero {
+  flex: 0 0 auto;
+  color: var(--cor-tinta-fantasma);
+  font-family: var(--fonte-serifa);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.carta__citacao {
+  position: relative;
+  z-index: 1;
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0;
+  padding: 0 clamp(0.5rem, 2vw, 1.5rem);
+}
+
+.carta__citacao::before {
+  content: "“";
+  position: absolute;
+  top: -2.4rem;
+  left: -0.3rem;
+  color: var(--cor-acento);
+  font-family: var(--fonte-serifa);
+  font-size: 5rem;
+  line-height: 1;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.carta__citacao p {
+  max-width: 62ch;
+  margin: 0 auto;
+  color: var(--cor-tinta);
+  font-family: var(--fonte-serifa);
+  font-size: clamp(1.35rem, 2.2vw, 2rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.carta__rodape {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: 1px solid var(--cor-filete);
+  color: var(--cor-tinta-fantasma);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.carta__filete {
+  flex: 1;
+  height: 1px;
+  background: var(--cor-filete);
+}
+
+@media (max-width: 520px) {
+  .carta__citacao p {
+    font-size: 1.25rem;
+  }
+
+  .carta__citacao::before {
+    font-size: 3.6rem;
+    top: -1.7rem;
+  }
+}

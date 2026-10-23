@@ -1,0 +1,37 @@
+.aviso {
+  display: flex;
+  gap: var(--esp-3);
+  padding: var(--esp-4);
+  border-left: 3px solid var(--cor-acento);
+  background: rgba(123, 45, 38, 0.055);
+  color: var(--cor-tinta-media);
+  font-size: var(--texto-sm);
+}
+
+.aviso--erro {
+  border-left-color: var(--cor-erro);
+  background: rgba(139, 58, 43, 0.065);
+}
+
+.aviso--sucesso {
+  border-left-color: var(--cor-acerto);
+  background: rgba(46, 91, 69, 0.065);
+}
+
+.aviso__marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-family: var(--fonte-serifa);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.aviso__texto {
+  margin: 0;
+}

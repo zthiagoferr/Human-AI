@@ -1,0 +1,41 @@
+# Dependências e artefatos
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.playwright-mcp/
+*.log
+
+# Banco e configuração local
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+
+# Credenciais e materiais restritos
+*firebase-adminsdk*.json
+*serviceAccount*.json
+*-adminsdk-*.json
+
+# PDF do jogo com gabarito: manter apenas local (não versionar)
+/Jogo Humano ou IA*.pdf
+
+# Evidências de teste (contêm bancos SQLite e logs)
+evidencias/
+
+# Artefatos npm acidentais na raiz (o projeto usa frontend/)
+/package.json
+/package-lock.json
+
+# Sistema
+.DS_Store
+.idea/
+.vscode/

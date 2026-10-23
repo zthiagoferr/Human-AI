@@ -1,0 +1,127 @@
+<main class="pagina">
+  <div class="grade-login">
+    <section class="grade-login__marca" aria-labelledby="titulo-registro">
+      <app-marca tamanho="grande" />
+      <p class="eyebrow" style="margin-top: var(--esp-7)">Antes da primeira carta</p>
+      <h1 id="titulo-registro" class="titulo-display">
+        Escolha um<br />
+        nome para<br />
+        <em>entrar na história.</em>
+      </h1>
+      <p class="lead" style="margin-top: var(--esp-5)">
+        O cadastro é rápido e serve para identificar sua participação no ranking da
+        turma. Use um nome de exibição que você não se importe de ver na lista.
+      </p>
+      <div class="nota-demo">
+        <span class="nota-demo__rotulo">Privacidade</span>
+        <p>
+          Nomes aparecem no ranking para os colegas autenticados. Em uma aula real,
+          combine apelidos ou nomes de exibição com o professor.
+        </p>
+      </div>
+    </section>
+
+    <section class="grade-login__formulario" aria-labelledby="titulo-criar">
+      <p class="eyebrow">Novo aluno</p>
+      <h2 id="titulo-criar">Criar conta</h2>
+      <p class="texto-suave">Leva menos de um minuto.</p>
+
+      @if (erro()) {
+        <app-aviso [mensagem]="erro()!" tipo="erro" />
+      }
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+        <div class="campo">
+          <label class="campo__rotulo" for="nome">Nome de exibição</label>
+          <input
+            id="nome"
+            class="campo__controle"
+            type="text"
+            formControlName="nome"
+            autocomplete="name"
+            aria-describedby="ajuda-nome erro-nome"
+            [attr.aria-invalid]="form.controls.nome.invalid && form.controls.nome.touched"
+          />
+          <span id="ajuda-nome" class="campo__ajuda">Como você quer aparecer no ranking.</span>
+          @if (form.controls.nome.touched && form.controls.nome.invalid) {
+            <span id="erro-nome" class="campo__erro">
+              Use de 3 a 80 caracteres, apenas letras, espaços, apóstrofo, hífen ou ponto.
+            </span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="email">E-mail</label>
+          <input
+            id="email"
+            class="campo__controle"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            aria-describedby="ajuda-email erro-email"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          />
+          <span id="ajuda-email" class="campo__ajuda">
+            Você usará este e-mail para entrar e recuperar a senha.
+          </span>
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <span id="erro-email" class="campo__erro">Informe um e-mail válido.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="senha">Senha</label>
+          <input
+            id="senha"
+            class="campo__controle"
+            type="password"
+            formControlName="senha"
+            autocomplete="new-password"
+            aria-describedby="ajuda-senha erro-senha"
+            [attr.aria-invalid]="form.controls.senha.invalid && form.controls.senha.touched"
+          />
+          <span id="ajuda-senha" class="campo__ajuda">
+            8 a 128 caracteres, com pelo menos uma letra e um número.
+          </span>
+          @if (form.controls.senha.touched && form.controls.senha.invalid) {
+            <span id="erro-senha" class="campo__erro">A senha não atende aos requisitos.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="confirmarSenha">Confirmar senha</label>
+          <input
+            id="confirmarSenha"
+            class="campo__controle"
+            type="password"
+            formControlName="confirmarSenha"
+            autocomplete="new-password"
+            aria-describedby="erro-confirmar"
+            [attr.aria-invalid]="
+              (form.controls.confirmarSenha.touched && form.controls.confirmarSenha.invalid) ||
+              (form.touched && form.hasError('senhasDiferentes'))
+            "
+          />
+          @if (
+            form.controls.confirmarSenha.touched &&
+            (form.controls.confirmarSenha.invalid || form.hasError('senhasDiferentes'))
+          ) {
+            <span id="erro-confirmar" class="campo__erro">As senhas não coincidem.</span>
+          }
+        </div>
+
+        <div class="formulario__acoes">
+          <button class="botao botao--primario botao--largo" type="submit" [disabled]="carregando()">
+            {{ carregando() ? 'Criando conta…' : 'Criar conta e começar' }}
+          </button>
+          <div class="divisor">ou</div>
+          <a class="botao botao--secundario botao--largo" routerLink="/login">
+            Já tenho conta
+          </a>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>

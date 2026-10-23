@@ -1,0 +1,232 @@
+.jogo {
+  max-width: var(--largura-leitura);
+  margin-inline: auto;
+}
+
+.jogo__contador {
+  color: var(--cor-tinta-suave);
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-md);
+  font-variant-numeric: tabular-nums;
+}
+
+.progresso {
+  margin-bottom: var(--esp-5);
+}
+
+.progresso__texto {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  margin-bottom: var(--esp-3);
+}
+
+.progresso__numero {
+  color: var(--cor-tinta-suave);
+  font-size: var(--texto-xs);
+  letter-spacing: 0.06em;
+}
+
+.trilha {
+  display: grid;
+  grid-template-columns: repeat(22, minmax(0, 1fr));
+  gap: 4px;
+  height: 7px;
+}
+
+.trilha__marco {
+  background: var(--cor-filete);
+  border-radius: 1px;
+  transition: background-color 180ms ease-out;
+}
+
+.trilha__marco--concluido {
+  background: var(--cor-acento);
+}
+
+.trilha__marco--atual {
+  background: var(--cor-tinta);
+}
+
+.pergunta {
+  width: 100%;
+  margin: var(--esp-6) 0 var(--esp-3);
+  padding: 0;
+  color: var(--cor-tinta-media);
+  font-family: var(--fonte-ui);
+  font-size: var(--texto-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.opcoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--esp-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.opcao {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-height: 78px;
+  padding: var(--esp-4);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--cor-filete-forte);
+  border-radius: var(--raio);
+  cursor: pointer;
+  transition:
+    border-color 180ms ease-out,
+    background-color 180ms ease-out,
+    box-shadow 180ms ease-out;
+}
+
+.opcao:hover {
+  border-color: var(--cor-tinta-suave);
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.opcao--selecionada {
+  border-color: var(--cor-tinta);
+  background: var(--cor-papel-claro);
+  box-shadow: 0 0 0 1px var(--cor-tinta) inset;
+}
+
+.opcao__radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.opcao__radio:focus-visible + .opcao__letra {
+  outline: 2px solid var(--cor-foco);
+  outline-offset: 3px;
+}
+
+.opcao__letra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--cor-tinta-suave);
+  border-radius: 50%;
+  color: var(--cor-tinta);
+  font-family: var(--fonte-serifa);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.opcao__letra--ia {
+  font-family: var(--fonte-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.opcao__texto {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.opcao__texto strong {
+  font-family: var(--fonte-serifa);
+  font-size: var(--texto-lg);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.opcao__texto small {
+  color: var(--cor-tinta-suave);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+
+.opcao__marca {
+  display: none;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-left: auto;
+  background: var(--cor-acento);
+  border-radius: 50%;
+}
+
+.opcao--selecionada .opcao__marca {
+  display: block;
+}
+
+.navegacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: 1px solid var(--cor-filete);
+}
+
+.perigo-texto {
+  color: var(--cor-acento);
+}
+
+.jogo__nota {
+  margin: var(--esp-5) 0 0;
+  color: var(--cor-tinta-fantasma);
+  font-size: var(--texto-xs);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.estado {
+  max-width: 620px;
+  margin: clamp(3rem, 12vh, 8rem) auto;
+  text-align: center;
+}
+
+.estado__filete {
+  width: 60px;
+  height: 1px;
+  margin: 0 auto var(--esp-5);
+  background: var(--cor-acento);
+}
+
+.estado__titulo {
+  font-size: var(--texto-2xl);
+}
+
+.estado app-aviso {
+  display: block;
+  margin-bottom: var(--esp-4);
+  text-align: left;
+}
+
+@media (max-width: 620px) {
+  .opcoes {
+    grid-template-columns: 1fr;
+  }
+
+  .navegacao {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .navegacao .perigo-texto {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
+
+  .navegacao .botao--primario {
+    width: 100%;
+  }
+}

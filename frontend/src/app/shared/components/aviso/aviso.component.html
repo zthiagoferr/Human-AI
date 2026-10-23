@@ -1,0 +1,10 @@
+<div
+  class="aviso"
+  [class.aviso--erro]="tipo() === 'erro'"
+  [class.aviso--sucesso]="tipo() === 'sucesso'"
+  [attr.role]="tipo() === 'erro' ? 'alert' : 'status'"
+  aria-live="polite"
+>
+  <span class="aviso__marca" aria-hidden="true">{{ tipo() === 'erro' ? '!' : 'i' }}</span>
+  <p class="aviso__texto">{{ mensagem() }}</p>
+</div>

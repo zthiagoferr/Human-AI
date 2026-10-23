@@ -1,0 +1,87 @@
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--esp-3);
+  min-width: 0;
+}
+
+.marca__logo {
+  width: auto;
+  height: 56px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.marca__texto {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.marca__nome {
+  font-family: var(--fonte-serifa);
+  font-size: 1.35rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.marca__ou {
+  color: var(--cor-acento);
+  font-style: italic;
+}
+
+.marca__linha {
+  color: var(--cor-tinta-suave);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.marca--grande {
+  align-items: flex-start;
+  gap: var(--esp-5);
+}
+
+.marca--grande .marca__logo {
+  height: clamp(100px, 16vw, 190px);
+}
+
+.marca--grande .marca__nome {
+  font-size: clamp(2.5rem, 6vw, 4.6rem);
+}
+
+.marca--grande .marca__linha {
+  margin-top: var(--esp-2);
+  font-size: var(--texto-xs);
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 520px) {
+  .marca__logo {
+    height: 42px;
+  }
+
+  .marca__nome {
+    font-size: 1.1rem;
+  }
+
+  .marca__linha {
+    display: none;
+  }
+
+  .marca--grande {
+    flex-direction: column;
+    gap: var(--esp-4);
+  }
+
+  .marca--grande .marca__logo {
+    height: 96px;
+  }
+
+  .marca--grande .marca__linha {
+    display: block;
+  }
+}

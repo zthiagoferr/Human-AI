@@ -1,0 +1,8 @@
+.angular/
+node_modules/
+dist/
+out-tsc/
+coverage/
+.idea/
+.vscode/
+*.log

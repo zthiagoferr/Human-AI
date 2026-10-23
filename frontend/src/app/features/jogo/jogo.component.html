@@ -1,0 +1,157 @@
+<main class="pagina">
+  <header class="topo">
+    <app-marca />
+    <div class="topo__acoes">
+      <span class="jogo__contador">{{ progresso() }} / {{ total }}</span>
+      <button class="botao botao--texto" type="button" (click)="sair()">Sair</button>
+    </div>
+  </header>
+
+  @if (carregando()) {
+    <section class="estado" aria-live="polite">
+      <div class="estado__filete" aria-hidden="true"></div>
+      <p class="eyebrow">Preparando a leitura</p>
+      <h1 class="estado__titulo">Preparando as cartas…</h1>
+      <p class="texto-suave">São 22 citações. Leia com calma.</p>
+    </section>
+  } @else {
+    @if (erro() && !partida()) {
+      <section class="estado">
+        <app-aviso [mensagem]="erro()!" tipo="erro" />
+        <button class="botao botao--secundario" type="button" (click)="carregar()">
+          Tentar novamente
+        </button>
+      </section>
+    } @else if (partida(); as p) {
+      <section class="jogo" aria-labelledby="titulo-jogo">
+        <div class="progresso">
+          <div class="progresso__texto">
+            <span class="eyebrow" style="margin: 0">Leitura em andamento</span>
+            <span class="progresso__numero"
+              >{{ progresso() }} de {{ total }} respondidas</span
+            >
+          </div>
+          <div
+            class="trilha"
+            role="progressbar"
+            [attr.aria-valuenow]="progresso()"
+            aria-valuemin="0"
+            [attr.aria-valuemax]="total"
+            aria-label="Progresso da partida"
+          >
+            @for (marco of marcos; track marco) {
+              <span
+                class="trilha__marco"
+                [class.trilha__marco--concluido]="marco < progresso()"
+                [class.trilha__marco--atual]="marco === indiceAtual()"
+              ></span>
+            }
+          </div>
+        </div>
+
+        <h1 id="titulo-jogo" class="sr-only">Jogo Humano ou IA?</h1>
+        <h2 #tituloCarta class="sr-only" tabindex="-1">
+          Carta {{ indiceAtual() + 1 }} de {{ total }}
+        </h2>
+
+        @if (erro()) {
+          <app-aviso [mensagem]="erro()!" tipo="erro" />
+        }
+
+        @if (cartaAtual(); as carta) {
+          <app-carta
+            [carta]="carta"
+            [posicao]="indiceAtual() + 1"
+            [total]="total"
+          />
+
+          @if (grupoAtual; as grupo) {
+            <fieldset class="opcoes" [formGroup]="grupo">
+              <legend class="pergunta">Quem escreveu este texto?</legend>
+
+              <label
+                class="opcao"
+                [class.opcao--selecionada]="grupo.controls.escolha.value === 'humano'"
+              >
+                <input
+                  type="radio"
+                  formControlName="escolha"
+                  value="humano"
+                  class="opcao__radio"
+                />
+                <span class="opcao__letra" aria-hidden="true">H</span>
+                <span class="opcao__texto">
+                  <strong>Humano</strong>
+                  <small>Uma pessoa escreveu</small>
+                </span>
+                <span class="opcao__marca" aria-hidden="true"></span>
+              </label>
+
+              <label
+                class="opcao"
+                [class.opcao--selecionada]="grupo.controls.escolha.value === 'ia'"
+              >
+                <input
+                  type="radio"
+                  formControlName="escolha"
+                  value="ia"
+                  class="opcao__radio"
+                />
+                <span class="opcao__letra opcao__letra--ia" aria-hidden="true">IA</span>
+                <span class="opcao__texto">
+                  <strong>IA</strong>
+                  <small>Uma inteligência artificial gerou</small>
+                </span>
+                <span class="opcao__marca" aria-hidden="true"></span>
+              </label>
+            </fieldset>
+          }
+
+          <div class="navegacao" role="group" aria-label="Navegação entre cartas">
+            <button
+              class="botao botao--secundario"
+              type="button"
+              (click)="anterior()"
+              [disabled]="indiceAtual() === 0"
+            >
+              ← Anterior
+            </button>
+
+            <button
+              class="botao botao--texto perigo-texto"
+              type="button"
+              (click)="desistir()"
+            >
+              Desistir da partida
+            </button>
+
+            @if (indiceAtual() < total - 1) {
+              <button
+                class="botao botao--primario"
+                type="button"
+                (click)="proxima()"
+                [disabled]="!atualRespondida()"
+              >
+                Próxima carta →
+              </button>
+            } @else {
+              <button
+                class="botao botao--primario"
+                type="button"
+                (click)="finalizar()"
+                [disabled]="!formValido() || enviando()"
+              >
+                {{ enviando() ? 'Conferindo…' : 'Finalizar partida' }}
+              </button>
+            }
+          </div>
+
+          <p class="jogo__nota">
+            O tempo oficial é registrado pelo servidor no início e na finalização.
+            Pausas contam; para recomeçar, use “Desistir da partida”.
+          </p>
+        }
+      </section>
+    }
+  }
+</main>
