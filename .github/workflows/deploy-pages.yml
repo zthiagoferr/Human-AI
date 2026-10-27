@@ -1,0 +1,86 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: frontend
+        run: npm ci
+
+      - name: Testes unitários
+        working-directory: frontend
+        run: |
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          export CHROME_BIN
+          test -n "$CHROME_BIN"
+          npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build de produção
+        working-directory: frontend
+        run: npm run build
+
+      - name: Verificar artefato
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          OUTPUT=dist/humano-ou-ia/browser
+          test -f "$OUTPUT/index.html"
+          grep -q '<base href="/Human-AI/">' "$OUTPUT/index.html"
+
+          if find "$OUTPUT" -type f \( -name '*.json' -o -name '*.db' -o -name '.env*' -o -name '*adminsdk*' \) | grep -q .; then
+            echo "Artefato contém arquivo proibido." >&2
+            exit 1
+          fi
+
+          if grep -RIl --binary-files=without-match \
+            -E 'private_key|BEGIN PRIVATE KEY|adminsdk|service_account|http://localhost:8000' \
+            "$OUTPUT"; then
+            echo "Artefato contém credencial ou URL local." >&2
+            exit 1
+          fi
+
+      - name: Empacotar artefato do Pages
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: frontend/dist/humano-ou-ia/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configurar Pages
+        uses: actions/configure-pages@v6
+
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

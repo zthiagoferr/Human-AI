@@ -5,6 +5,7 @@ import { catchError, from, of, switchMap, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { FirebaseAuthGateway } from '../firebase/firebase-auth.gateway';
+import { apiConfigurada } from '../utils/api';
 import { SessaoStore } from './sessao.store';
 
 export const authInterceptor: HttpInterceptorFn = (requisicao, proximo) => {
@@ -12,7 +13,7 @@ export const authInterceptor: HttpInterceptorFn = (requisicao, proximo) => {
   const store = inject(SessaoStore);
   const router = inject(Router);
 
-  if (!requisicao.url.startsWith(environment.apiUrl)) {
+  if (!apiConfigurada() || !requisicao.url.startsWith(environment.apiUrl)) {
     return proximo(requisicao);
   }
 

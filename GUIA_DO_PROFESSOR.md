@@ -20,32 +20,33 @@ Ao final, o aluno deve ser capaz de:
 ## 3. Antes da aula
 
 1. Instale e rode o back-end e o front-end (ver `README.md`).
-2. Configure o Firebase do projeto ativo `human-ai-5c442`:
+2. **Atenção à publicação atual:** `https://zthiagoferr.github.io/Human-AI/` é apenas uma **prévia da interface**. A API FastAPI ainda não foi publicada; login completo, partida, resultado e ranking não funcionam nesse endereço. Não oriente alunos a usar a URL pública para a atividade até a API estar disponível.
+3. Configure o Firebase do projeto ativo `human-ai-5c442`:
    - habilite **Email/Password**;
    - cadastre o **Web App** e preencha `frontend/src/environments/firebase.config.ts` com a configuração pública;
-   - adicione `localhost` e o domínio de produção aos **domínios autorizados**;
+   - adicione `localhost`, `zthiagoferr.github.io` e o domínio de produção aos **domínios autorizados**;
    - gere uma nova chave de service account/ADC do projeto `human-ai-5c442` e exporte `GOOGLE_APPLICATION_CREDENTIALS` (nunca versionar).
-3. Revogue a chave antiga de service account, se ainda existir.
-4. Crie/verifique a conta do professor no Firebase e coloque o e-mail em `HUMANAI_PROFESSOR_EMAILS` (o claim `email_verified` precisa ser `true`).
-5. Configure `HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442`.
-6. Faça backup de `backend/humanai.db`, `-wal` e `-shm` antes da primeira execução em banco existente.
-7. Verifique se as 22 cartas estão preenchidas e validadas:
+4. Revogue a chave antiga de service account, se ainda existir.
+5. Crie/verifique a conta do professor no Firebase e coloque o e-mail em `HUMANAI_PROFESSOR_EMAILS` (o claim `email_verified` precisa ser `true`).
+6. Configure `HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442`.
+7. Faça backup de `backend/humanai.db`, `-wal` e `-shm` antes da primeira execução em banco existente.
+8. Verifique se as 22 cartas estão preenchidas e validadas:
    ```bash
    cd backend
    python scripts/validar_cartas.py
    ```
-8. Faça uma partida de teste com uma conta de demonstração.
-9. Teste cadastro, login, logout e recuperação de senha.
-10. Confira se o ranking abre e atualiza.
-11. Prepare os dispositivos: um por aluno ou um por dupla.
-12. Tenha o gabarito impresso ou aberto em uma tela separada, nunca projetada.
-13. Leia previamente as análises das cartas para conduzir o debate.
+9. Faça uma partida de teste com uma conta de demonstração.
+10. Teste cadastro, login, logout e recuperação de senha.
+11. Confira se o ranking abre e atualiza.
+12. Prepare os dispositivos: um por aluno ou um por dupla.
+13. Tenha o gabarito impresso ou aberto em uma tela separada, nunca projetada.
+14. Leia previamente as análises das cartas para conduzir o debate.
 
 ## 4. Onde fica o gabarito
 
 O gabarito **não** é exibido ao aluno antes do fim da partida. Existem duas cópias de referência:
 
-1. **No back-end:** `backend/app/data/cartas_gabarito.json`, nos campos `origem` e `analise` de cada carta. Esse arquivo é lido apenas pelo servidor e não é servido por nenhuma rota. A pasta `backend/` é material do professor: não a distribua aos alunos nem a publique.
+1. **No back-end:** `backend/app/data/cartas_gabarito.json`, nos campos `origem` e `analise` de cada carta. Esse arquivo é lido apenas pelo servidor e não é servido por nenhuma rota. A pasta `backend/` não é enviada ao GitHub Pages; neste projeto, por decisão do usuário, o repositório do GitHub é público, então o arquivo pode ser lido diretamente no GitHub. Não o distribua aos alunos nem o copie para `frontend/public`.
 2. **No PDF de origem:** a página de **“Gabarito Separado”** ao final de `Jogo Humano ou IA - 22 Cartas e Gabarito Separado (1).pdf`.
 
 Este guia **não reproduz a lista de quais cartas são humanas ou de IA**, para evitar vazamento acidental. A distribuição é de **11 cartas humanas e 11 cartas de IA**. Para conferir caso a caso, use o JSON no back-end ou a página de gabarito do PDF.
@@ -245,6 +246,8 @@ Rubrica sugerida (4 níveis):
 | Resultado não abre | A partida pode não ter sido finalizada; volte ao jogo |
 | Aluno viu a análise antes | Verifique se não há outra aba com resultado; o gabarito só é liberado após o envio |
 | Turma sem internet | Rode tudo localmente; o front fala com `localhost:8000` e o Firebase precisa de rede |
+| URL pública mostra “API do jogo não está configurada” | A API ainda não foi publicada; a URL do Pages é apenas prévia da interface. Use o ambiente local ou aguarde a publicação da API |
+| Erro de domínio não autorizado no Firebase | Adicione `zthiagoferr.github.io` em Authentication → Settings → Authorized domains |
 | Nomes no ranking | Combine apelidos ou nomes de exibição previamente |
 
 ## 12. Perguntas frequentes
@@ -267,10 +270,14 @@ A duração é registrada no servidor; pausas contam. Ele pode desistir e começ
 **Como falo de IA sem reforçar estereótipos?**  
 Explore exemplos ambíguos, peça evidências e mostre que humanos também usam clichês. O foco é a leitura, não a essência.
 
+**A versão pública no GitHub Pages já funciona para os alunos?**
+Não completamente. Ela publica apenas a interface Angular; a API FastAPI ainda não está disponível. Login completo, partida, resultado e ranking exigem o backend. A tela de login informa essa indisponibilidade e nenhum resultado é simulado.
+
 ## 13. Checklist rápido
 
 - [ ] Back-end e front-end rodando.
-- [ ] Firebase configurado (Email/Password, Web App, domínios autorizados).
+- [ ] Firebase configurado (Email/Password, Web App, domínios autorizados, incluindo `zthiagoferr.github.io`).
+- [ ] Confirmado que a versão pública do Pages tem API configurada antes de indicar aos alunos.
 - [ ] Credencial Admin nova/ADC configurada e chave antiga revogada.
 - [ ] `HUMANAI_PROFESSOR_EMAILS` configurado e e-mail verificado.
 - [ ] Backup do banco feito antes da migração.

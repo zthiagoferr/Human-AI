@@ -108,7 +108,7 @@ Human-AI/
 
 ### 3.1 Componentes standalone
 
-Angular 20 com `bootstrapApplication`, `provideRouter`, `provideHttpClient(withInterceptors([authInterceptor]))` e `provideAppInitializer`. O inicializador restaura a sessão do Firebase e sincroniza o perfil local via `/auth/me`. Não há `NgModule` de feature. O carregamento das telas é lazy por rota.
+Angular 20 com `bootstrapApplication`, `provideRouter(routes, withHashLocation())`, `provideHttpClient(withInterceptors([apiIndisponivelInterceptor, authInterceptor]))` e `provideAppInitializer`. Quando `apiUrl` está configurada, o inicializador restaura a sessão do Firebase e sincroniza o perfil local via `/auth/me`; quando está vazio, marca a sessão como pronta sem tocar no Firebase. Não há `NgModule` de feature. O carregamento das telas é lazy por rota.
 
 - `AppComponent`: shell mínimo, apenas `<router-outlet />` e o fundo de papel.
 - `features/*`: telas.
@@ -144,6 +144,15 @@ Não há NgRx. O estado é pequeno e local; signals evitam complexidade e atuali
 - A tela de resultado consulta a posição do aluno.
 - A tela de ranking faz polling de 5 s com `timer` + `exhaustMap`, atualizando signals.
 - Nenhum `location.reload()`.
+
+### 3.6 Hospedagem pública (GitHub Pages)
+
+- O frontend Angular é publicado em `https://zthiagoferr.github.io/Human-AI/` pelo workflow `.github/workflows/deploy-pages.yml`, no mesmo repositório do backend.
+- O `baseHref` de produção é `/Human-AI/`; o desenvolvimento continua em `/`.
+- O roteador usa `withHashLocation()`: reload e deep link funcionam sem reescrita SPA no GitHub Pages.
+- O artefato publicado é somente `frontend/dist/humano-ou-ia/browser`; não inclui backend, JSON de cartas, `.env`, banco ou credencial.
+- A API FastAPI ainda não está publicada. `environment.prod.ts` usa `apiUrl: ''`; `apiIndisponivelInterceptor` e os gates de `AuthService` impedem chamadas e evitam sessão/contas órfãs. A UI informa a indisponibilidade em PT-BR e não simula resultados.
+- Quando a API for publicada, basta configurar `apiUrl` HTTPS, incluir `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS` e redeployar.
 
 ## 4. Arquitetura do back-end
 
@@ -238,6 +247,17 @@ RankingComponent → GET /api/ranking?limite=500
 timer(5s) repete sem reload
 ```
 
+### 5.5 Fluxo com API ausente (publicação atual)
+
+```text
+environment.prod.apiUrl === ''
+→ App inicializa sem tocar no Firebase e marca a sessão como pronta
+→ Login exibe a nota de indisponibilidade
+→ login/registro/vínculo retornam ApiIndisponivelError antes do SDK
+→ chamadas de /auth, /partidas e /ranking são bloqueadas pelo apiIndisponivelInterceptor
+→ a UI mostra mensagem em PT-BR; nenhum resultado é simulado
+```
+
 ## 6. Decisões e justificativas
 
 | Decisão | Alternativa | Por que |
@@ -254,6 +274,8 @@ timer(5s) repete sem reload
 | Tempo no servidor | Tempo no cliente | Impede manipulação de relógio/DevTools |
 | Melhor tentativa | Última tentativa | Não pune prática; ranking educacional mais justo |
 | Polling 5 s | WebSocket/SSE | Simples, robusto e suficiente para uma turma |
+| GitHub Pages + hash location | 404.html rewrite | GitHub Pages não reescreve SPA; hash garante reload/deep link sem status 404 e sem etapa extra no artefato |
+| `apiUrl` vazio em produção | URL fictícia ou mock | Evita simular resultados e deixa a indisponibilidade explícita até a API existir |
 | Ordem fixa #01–#22 | Embaralhar | Preserva a numeração do PDF e a conferência; não há requisito de embaralhar |
 | Sem Angular Material | Material | O design editorial exige controle total de tipografia, papel e filetes |
 | Persistência local do Firebase | sessionStorage próprio | Sobrevive a recarregamentos; o SDK gerencia refresh e armazenamento |
@@ -275,6 +297,10 @@ timer(5s) repete sem reload
 - **HTTPS:** obrigatório em produção.
 - **LGPD:** ranking exibe nomes; obter consentimento/base legal e limitar acesso.
 - **Credencial Firebase:** chave antiga comprometida; revogar e usar nova fora do repositório.
+- **Artefato do Pages:** publicar somente `frontend/dist/humano-ou-ia/browser`; workflow verifica ausência de JSON, `.env`, banco, credencial e URL local.
+- **Repositório público:** o código do backend e o JSON de cartas são visíveis no GitHub por decisão do projeto; o app não os serve, mas o arquivo pode ser lido no repositório. Risco aceito nesta fase, a rever antes de uso real.
+- **Firebase/Pages:** `zthiagoferr.github.io` precisa estar em Authorized domains; a API key pública deve permitir o referrer do Pages.
+- **CORS futuro:** a API deve aceitar a origem `https://zthiagoferr.github.io` e ser HTTPS para evitar mixed content.
 
 ## 8. Desempenho com 200+ alunos
 
@@ -293,7 +319,7 @@ timer(5s) repete sem reload
 - **Vínculo:** códigos, expiração, uso único, shell com partidas, preservação do legado.
 - **Migração:** coluna `firebase_uid`, índice único, idempotência, preservação de contagens e ranking.
 - **Segurança:** CORS, 401/403/410, ausência de gabarito antes do fim.
-- **Front:** guards, formulários, gateway fake, interceptor, persistência simulada, polling, renderização.
+- **Front:** guards, formulários, gateway fake, interceptor, persistência simulada, polling, renderização. O CI de Pages roda os 38 testes Angular com ChromeHeadless antes do build.
 
 ## 10. Riscos e mitigações
 
@@ -311,6 +337,10 @@ timer(5s) repete sem reload
 | Trapaça no tempo | Timestamps do servidor |
 | Pressão por tempo | Explicar que o ranking não mede inteligência; adaptar avaliação |
 | Nomes no ranking | Política de privacidade/LGPD; acesso autenticado |
+| API indisponível no Pages | Aviso na UI, gates antes do Firebase e interceptor; nenhum resultado simulado |
+| SPA em hospedagem estática | Hash routing; sem dependência de rewrite do GitHub Pages |
+| ChromeHeadless no CI | Runner `ubuntu-latest` com Chrome; `CHROME_BIN` descoberto dinamicamente |
+| Artefato com arquivo indevido | Step de verificação no workflow antes do upload |
 | PDF mal transcrito | Validação + conferência manual + script |
 
 ## 11. Não objetivos

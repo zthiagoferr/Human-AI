@@ -3,6 +3,8 @@
 Jogo educacional de letramento digital em que o aluno lê 22 citações e decide se cada uma foi escrita por um humano ou gerada por IA. Ao final, recebe a correção completa com a análise pedagógica de cada carta e vê sua posição no ranking da turma.
 
 > **Demonstração educacional.** O acesso é feito pelo Firebase Authentication (e-mail e senha). Uso real exige HTTPS, limitação de tentativas/quotas, política de privacidade e revisão de segurança. Leia a seção **Segurança** antes de publicar.
+>
+> **Publicação atual:** a interface Angular está publicada em `https://zthiagoferr.github.io/Human-AI/` como **prévia**. A API FastAPI ainda **não** foi publicada; por isso, login completo, partida, resultado e ranking não funcionam nesse endereço. Nenhum resultado é simulado.
 
 ## O que o jogo faz
 
@@ -29,6 +31,17 @@ O fluxo é linear: **login → jogo → resultado → ranking**. Não há menu d
 - **Gabarito:** JSON exclusivo do back-end, nunca servido ao front-end antes da finalização.
 - **PDF:** extração com `pypdf` e/ou `pdftotext`; transcrição manual fiel para o JSON.
 
+## Publicação no GitHub Pages
+
+A interface Angular é publicada em **`https://zthiagoferr.github.io/Human-AI/`** pelo workflow `.github/workflows/deploy-pages.yml`, no mesmo repositório do back-end.
+
+- **Status:** prévia da interface. A API FastAPI **não** está publicada. O `environment.prod.ts` mantém `apiUrl: ''` para que o app avise a indisponibilidade e não simule partidas, resultados ou ranking.
+- **Deploy:** push em `main` ou execução manual do workflow (`workflow_dispatch`). O artefato publicado contém **somente** `frontend/dist/humano-ou-ia/browser` (HTML, JS, CSS e logo); não inclui `backend/`, JSON de gabarito, `.env`, banco nem credencial.
+- **Rotas:** `baseHref` de produção é `/Human-AI/` e o roteador usa `withHashLocation()`. As URLs públicas têm `#`, por exemplo `https://zthiagoferr.github.io/Human-AI/#/login`. Isso faz reload e deep link funcionarem sem reescrita no GitHub Pages.
+- **Ativação:** em **Settings → Pages → Build and deployment → Source**, selecione **GitHub Actions**.
+- **Firebase:** adicione `zthiagoferr.github.io` em **Authentication → Settings → Authorized domains** e mantenha `localhost` para o desenvolvimento.
+- **Quando a API existir:** publique-a em HTTPS, preencha `environment.prod.ts` com a URL real, inclua a origem `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS` e faça novo deploy.
+
 ## Estrutura do repositório
 
 ```text
@@ -46,6 +59,9 @@ O fluxo é linear: **login → jogo → resultado → ranking**. Não há menu d
 │   ├── src/
 │   ├── public/
 │   └── package.json
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml
 └── imagens/
     └── Logo HumanAI_ Conexão entre Humano e IA.png
 ```
@@ -62,7 +78,7 @@ O fluxo é linear: **login → jogo → resultado → ranking**. Não há menu d
 ## Configuração do Firebase (antes de executar)
 
 1. No Console do Firebase, abra **Authentication → Sign-in method** e habilite **Email/Password**.
-2. Em **Authentication → Settings → Authorized domains**, inclua `localhost` e o domínio real de produção.
+2. Em **Authentication → Settings → Authorized domains**, inclua `localhost` e, para a publicação atual, `zthiagoferr.github.io` (somente o host, sem caminho).
 3. Em **Project settings → Your apps**, cadastre um **Web App** do projeto `human-ai-5c442` e copie a configuração **pública** (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`, `measurementId`) para `frontend/src/environments/firebase.config.ts`.
 4. Gere uma **nova chave de service account do projeto `human-ai-5c442`** ou use Application Default Credentials. Guarde a chave **fora do repositório** e exporte:
    ```bash
@@ -148,7 +164,7 @@ export const firebaseConfig = {
   measurementId: 'G-RD56LHCC9F'
 };
 
-// environment.ts
+// environment.ts (desenvolvimento)
 export const environment = {
   producao: false,
   apiUrl: 'http://localhost:8000/api',
@@ -156,7 +172,20 @@ export const environment = {
   rankingLimite: 500,
   firebase: firebaseConfig
 };
+
+// environment.prod.ts (produção no GitHub Pages)
+export const environment = {
+  producao: true,
+  // A API pública ainda não foi publicada. Mantenha vazio.
+  // Quando existir, use uma URL HTTPS real.
+  apiUrl: '',
+  rankingPollMs: 5000,
+  rankingLimite: 500,
+  firebase: firebaseConfig
+};
 ```
+
+O `environment.prod.ts` é aplicado pelo `fileReplacements` da configuração `production`. Com `apiUrl` vazio, o app exibe a nota de indisponibilidade no login e falha as chamadas de API com mensagem em português; não há resultados simulados.
 
 ## Cartas e gabarito
 
@@ -225,6 +254,8 @@ cd frontend
 CHROME_BIN=/usr/bin/chromium npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
+O workflow de Pages roda os mesmos testes com ChromeHeadless (`38` testes) antes do build.
+
 Em máquinas sem `/usr/bin/chromium`, ajuste `CHROME_BIN` para o binário do Chrome/Chromium.
 
 Build de produção do front:
@@ -234,13 +265,22 @@ cd frontend
 npm run build
 ```
 
+A saída fica em `frontend/dist/humano-ou-ia/browser/index.html` e deve conter `<base href="/Human-AI/">`. O workflow publica apenas essa pasta. Para conferir localmente:
+
+```bash
+grep -n '<base href=' frontend/dist/humano-ou-ia/browser/index.html
+```
+
 ## Segurança
 
 Esta é uma **demonstração**. Antes de qualquer uso real:
 
 - sirva tudo por **HTTPS** (o Firebase Authentication exige contexto seguro);
 - configure **quotas e proteção contra abuso** no Firebase/Identity Platform e rate limiting no backend;
-- mantenha a **API key pública** restrita por domínio/HTTP referrer no Google Cloud Console;
+- mantenha a **API key pública** restrita por domínio/HTTP referrer no Google Cloud Console; ao publicar no Pages, inclua `https://zthiagoferr.github.io/*` e teste o login;
+- **GitHub Pages:** adicione `zthiagoferr.github.io` aos domínios autorizados do Firebase; o artefato publicado deve conter somente `frontend/dist/humano-ou-ia/browser`;
+- **Repositório público:** o código do backend e o JSON de cartas ficam visíveis no GitHub por decisão do projeto. Isso não envia o gabarito pelo app, mas permite leitura direta do arquivo no repositório; avalie separar o backend em repositório privado antes de uso real com alunos;
+- **CORS futuro:** quando a API for publicada, use apenas a origem `https://zthiagoferr.github.io` (sem caminho e sem barra final) em `HUMANAI_CORS_ORIGINS`;
 - aplique **CSP** e evite qualquer `innerHTML`: o SDK persiste a sessão no navegador;
 - o logout é local (`signOut`); ID Tokens já emitidos podem valer até cerca de 1 hora. Use `HUMANAI_FIREBASE_CHECK_REVOKED=true` se precisar consultar revogação a cada request;
 - desabilite cadastro aberto ou use convite/SSO se necessário;
@@ -259,7 +299,10 @@ Esta é uma **demonstração**. Antes de qualquer uso real:
 | Back-end não inicia | JSON de cartas incompleto/inválido | Rode `python scripts/validar_cartas.py` e corrija |
 | `AUTENTICACAO_INDISPONIVEL` | Credencial Admin ausente/inválida | Exporte `GOOGLE_APPLICATION_CREDENTIALS` ou configure ADC; reinicie |
 | `auth/invalid-api-key` ou configuração incompleta | `firebase.config.ts` vazio/incorreto | Copie a configuração pública do Web App no Console |
-| `auth/unauthorized-domain` | Domínio não autorizado | Adicione o domínio em Authentication → Settings → Authorized domains |
+| `auth/unauthorized-domain` | Domínio não autorizado | Adicione `zthiagoferr.github.io` (e mantenha `localhost`) em Authentication → Settings → Authorized domains |
+| “API do jogo não está configurada” no Pages | `environment.prod.ts` com `apiUrl: ''` | Esperado enquanto a API não for publicada; para ativar, preencha a URL HTTPS e faça novo deploy |
+| Página branca ou 404 ao abrir uma rota | URL sem `#` ou `baseHref` incorreto | Use `https://zthiagoferr.github.io/Human-AI/#/rota`; confira `<base href="/Human-AI/">` no build |
+| `CORS policy` no Pages | API sem a origem do Pages | Inclua `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS` e reinicie a API |
 | `auth/operation-not-allowed` | Provedor Email/Password desabilitado | Habilite em Authentication → Sign-in method |
 | Aluno de conta antiga não entra | Conta legada sem vínculo | Gere código de vínculo e oriente `/vincular-legado` antes de jogar |
 | `database is locked` | Múltiplos workers ou escrita concorrente | Use `--workers 1`; mantenha WAL; feche conexões |

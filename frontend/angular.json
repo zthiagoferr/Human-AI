@@ -36,6 +36,7 @@
                 }
               ],
               "outputHashing": "all",
+              "baseHref": "/Human-AI/",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/auth/auth.service';
 import { mensagemErroAuth } from '../../core/firebase/firebase-errors';
+import { AVISO_API_INDISPONIVEL, apiConfigurada } from '../../core/utils/api';
 import { AvisoComponent } from '../../shared/components/aviso/aviso.component';
 import { MarcaComponent } from '../../shared/components/marca/marca.component';
 
@@ -21,6 +22,8 @@ export class LoginComponent {
 
   readonly carregando = signal(false);
   readonly erro = signal<string | null>(null);
+  readonly apiIndisponivel = !apiConfigurada();
+  readonly avisoApi = AVISO_API_INDISPONIVEL;
 
   readonly form = this.fb.nonNullable.group({
     email: [

@@ -23,6 +23,7 @@ import {
 } from '../models/auth.models';
 import { PartidaService } from '../services/partida.service';
 import { RankingService } from '../services/ranking.service';
+import { ApiIndisponivelError, apiConfigurada } from '../utils/api';
 import { SessaoStorage } from './sessao.storage';
 import { SessaoStore } from './sessao.store';
 
@@ -43,6 +44,12 @@ export class AuthService {
 
   async inicializar(): Promise<void> {
     this.storage.limparTokenLegado();
+
+    if (!apiConfigurada()) {
+      this.store.limpar();
+      this.store.marcarPronto();
+      return;
+    }
 
     try {
       await this.gateway.configurarPersistencia();
@@ -80,6 +87,10 @@ export class AuthService {
   }
 
   registrar(dados: RegistroPayload): Observable<Usuario> {
+    if (!apiConfigurada()) {
+      return throwError(() => new ApiIndisponivelError());
+    }
+
     return from(this.gateway.criar(dados.email, dados.senha, dados.nome)).pipe(
       switchMap(() =>
         this.http.post<SessaoResponse>(`${this.api}/sessao`, { nome: dados.nome }),
@@ -95,6 +106,10 @@ export class AuthService {
   }
 
   login(dados: LoginPayload): Observable<Usuario> {
+    if (!apiConfigurada()) {
+      return throwError(() => new ApiIndisponivelError());
+    }
+
     return from(this.gateway.entrar(dados.email, dados.senha)).pipe(
       switchMap(() => this.sincronizarSessao()),
       map((resposta) => resposta.usuario),
@@ -111,6 +126,10 @@ export class AuthService {
   }
 
   vincularLegado(codigo: string): Observable<Usuario> {
+    if (!apiConfigurada()) {
+      return throwError(() => new ApiIndisponivelError());
+    }
+
     return this.http
       .post<SessaoResponse>(`${this.api}/vincular-legado`, { codigo })
       .pipe(

@@ -26,6 +26,10 @@
       <h2 id="titulo-entrar">Entrar na leitura</h2>
       <p class="texto-suave">Use o e-mail e a senha da sua conta.</p>
 
+      @if (apiIndisponivel) {
+        <app-aviso [mensagem]="avisoApi" tipo="info" />
+      }
+
       @if (erro()) {
         <app-aviso [mensagem]="erro()!" tipo="erro" />
       }

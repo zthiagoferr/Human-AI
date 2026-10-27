@@ -2,13 +2,14 @@
 
 ## 1. Visão geral
 
-- **Front-end:** Angular 20 em `http://localhost:4200`.
-- **Back-end:** FastAPI/Uvicorn em `http://localhost:8000`.
-- **Base da API:** `http://localhost:8000/api`.
+- **Front-end:** Angular 20 em `http://localhost:4200` (dev) e em `https://zthiagoferr.github.io/Human-AI/` (prévia no GitHub Pages).
+- **Back-end:** FastAPI/Uvicorn em `http://localhost:8000`; a API pública ainda **não** foi publicada.
+- **Base da API:** `http://localhost:8000/api` em desenvolvimento; `environment.prod.ts` usa `apiUrl: ''` até a API pública existir.
 - **Banco:** SQLite `backend/humanai.db`.
 - **Formato:** JSON camelCase; datas ISO 8601 UTC.
 - **Autenticação:** Firebase Authentication (e-mail/senha) no frontend; `Authorization: Bearer <ID Token>` na API.
 - **Identidade local:** `usuarios.firebase_uid` (único); SQLite continua sendo o banco de partidas/ranking.
+- **Hospedagem:** o GitHub Pages publica somente o build estático do Angular; o FastAPI não é executado no Pages.
 
 ## 2. Autenticação
 
@@ -543,6 +544,8 @@ Configurável por `HUMANAI_CORS_ORIGINS` (vírgula). Em produção, usar apenas 
 | `''` | — | Redireciona para `/login` |
 | `**` | — | Redireciona para `''` |
 
+No GitHub Pages, as URLs públicas incluem hash (`/#/login`, `/#/jogo`, `/#/resultado/12`, `/#/ranking`). O `baseHref` de produção é `/Human-AI/`; o desenvolvimento continua em `/`.
+
 ### 10.2 Serviços
 
 - `AuthService`: inicialização, cadastro, login, logout, recuperação, vínculo e sincronização local.
@@ -551,7 +554,8 @@ Configurável por `HUMANAI_CORS_ORIGINS` (vírgula). Em produção, usar apenas 
 - `RankingService`: carregamento, polling, revisão.
 - `SessaoStore`: signals de usuário/papel/autenticado/pronto.
 - `SessaoStorage`: limpeza do token legado e das respostas parciais.
-- `authInterceptor`: ID Token via SDK + tratamento de 401.
+- `authInterceptor`: ID Token via SDK + tratamento de 401; não atua quando `apiUrl` está vazio.
+- `apiIndisponivelInterceptor`: bloqueia `/auth`, `/partidas` e `/ranking` quando a API não está configurada, retornando `ApiIndisponivelError` em PT-BR sem chamada de rede.
 
 ### 10.3 Formulários reativos
 
@@ -569,6 +573,24 @@ Configurável por `HUMANAI_CORS_ORIGINS` (vírgula). Em produção, usar apenas 
 - Em erro, mantém a lista anterior e tenta de novo.
 - Sem `location.reload()`.
 
+### 10.5 Build, ambientes e publicação
+
+- `angular.json` → `configurations.production.baseHref: "/Human-AI/"`; `development` continua com `/`.
+- `fileReplacements` troca `environment.ts` por `environment.prod.ts` no build de produção.
+- `environment.prod.ts` usa `apiUrl: ''` enquanto a API pública não existe. Com isso, `apiIndisponivelInterceptor` bloqueia `/auth`, `/partidas` e `/ranking`, e `AuthService` falha antes do Firebase.
+- O roteador usa `withHashLocation()`: URLs públicas com `#` e reload/deep link sem reescrita SPA.
+- Workflow `.github/workflows/deploy-pages.yml`:
+  - gatilhos `push` em `main` e `workflow_dispatch`;
+  - permissões `contents: read`, `pages: write`, `id-token: write`;
+  - `concurrency: pages`, sem cancelar deploy em andamento;
+  - build com Node 22, `npm ci`, testes ChromeHeadless e `npm run build`;
+  - verificação de `<base href="/Human-AI/">` e de arquivos proibidos/credenciais/URL local;
+  - upload de `frontend/dist/humano-ou-ia/browser` via `actions/upload-pages-artifact`;
+  - deploy com `actions/configure-pages` e `actions/deploy-pages` no environment `github-pages`.
+- O artefato não inclui `backend/`, JSON de cartas, `.env`, banco, PDF ou credencial.
+- Ativação manual: Settings → Pages → Source: GitHub Actions.
+- Firebase: adicionar `zthiagoferr.github.io` em Authentication → Settings → Authorized domains.
+
 ## 11. Segurança — leia antes de publicar
 
 Esta é uma **demonstração**. Em uso real:
@@ -582,7 +604,10 @@ Esta é uma **demonstração**. Em uso real:
 7. **LGPD:** ranking com nomes exige base legal, consentimento e política de privacidade.
 8. **Docs:** desabilitar `/docs` e `/openapi.json` em produção.
 9. **Credencial Admin:** a chave antiga deve ser revogada; a nova fica fora do repositório. Nunca no frontend.
-10. **API key pública:** restringir por domínio/HTTP referrer no Google Cloud Console.
+10. **API key pública:** restringir por domínio/HTTP referrer no Google Cloud Console; incluir `https://zthiagoferr.github.io/*`.
+11. **GitHub Pages:** adicionar `zthiagoferr.github.io` aos Authorized domains; publicar somente o build do frontend.
+12. **Repositório público:** o código do backend e o JSON de cartas são visíveis por decisão do projeto; o app não os serve, mas o arquivo pode ser lido no GitHub. Rever antes de uso real.
+13. **CORS futuro:** incluir `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS`; API deve ser HTTPS.
 
 ## 12. Testes
 
@@ -614,7 +639,16 @@ cd frontend
 CHROME_BIN=/usr/bin/chromium npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
-Cobrir guards, gateway fake, persistência simulada, interceptor, formulários, polling e renderização.
+Cobrir guards, gateway fake, persistência simulada, interceptor, formulários, polling e renderização. O CI de Pages roda os 38 testes com ChromeHeadless antes do build.
+
+Build de produção:
+
+```bash
+cd frontend
+npm run build
+grep -n '<base href=' dist/humano-ou-ia/browser/index.html
+# esperado: <base href="/Human-AI/">
+```
 
 ## 13. Operação
 
@@ -628,3 +662,6 @@ Cobrir guards, gateway fake, persistência simulada, interceptor, formulários, 
 - Logs sem tokens, senhas, credenciais ou corpos sensíveis.
 - Backup: copiar o arquivo SQLite com o servidor parado.
 - Credencial Admin: `GOOGLE_APPLICATION_CREDENTIALS`/ADC; nunca versionar.
+- Deploy do frontend: push em `main` ou `gh workflow run deploy-pages.yml`; monitorar com `gh run list`/`gh run view`.
+- GitHub Pages: ativar em Settings → Pages → Source: GitHub Actions antes do primeiro deploy.
+- Rollback: novo commit com correção e novo deploy; nunca force push.
