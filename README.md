@@ -73,8 +73,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 read -r -s -p "DATABASE_PUBLIC_URL: " DATABASE_URL; echo
 export DATABASE_URL
-python scripts/migrar_sqlite_para_postgres.py --dry-run
-python scripts/migrar_sqlite_para_postgres.py --executar
+python scripts/migrar_sqlite_para_postgres.py            # dry-run (padrão, somente leitura)
+python scripts/migrar_sqlite_para_postgres.py --executar # grava no destino
 unset DATABASE_URL
 ```
 

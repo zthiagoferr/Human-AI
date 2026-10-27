@@ -664,7 +664,7 @@ grep -n '<base href=' dist/humano-ou-ia/browser/index.html
 - Em dev, SQLite; em produção, PostgreSQL (Railway).
 - Migração automática no startup: `firebase_uid`, índice único e `codigos_vinculo`; idempotente; no PG cria índice `lower(usuario)` e view com `CREATE OR REPLACE`.
 - Rodar `python scripts/migrar_firebase.py` para aplicar/verificar e comparar contagens (SQLite local).
-- Migração SQLite → PostgreSQL: `python scripts/migrar_sqlite_para_postgres.py --dry-run` e depois `--executar`; preserva IDs, ajusta sequences e não altera o SQLite.
+- Migração SQLite → PostgreSQL: rode `python scripts/migrar_sqlite_para_postgres.py` (dry-run padrão, somente leitura) e depois `python scripts/migrar_sqlite_para_postgres.py --executar`; preserva IDs, ajusta sequences e não altera o SQLite.
 - Gerar código de vínculo: `python scripts/gerar_codigo_vinculo.py --usuario ana.lima`.
 - Resetar banco SQLite (apenas desenvolvimento): parar servidor e apagar `humanai.db` (e `-wal`/`-shm`). Nunca em produção sem backup.
 - Logs sem tokens, senhas, credenciais, URL do banco ou corpos sensíveis.
