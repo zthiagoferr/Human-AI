@@ -32,10 +32,10 @@ O **Human-AI** é um projeto acadêmico desenvolvido em grupo, resultado da cola
 
 | Integrante | Função | Responsabilidades |
 |---|---|---|
-| **Thiago** | Desenvolvedor Full Stack e responsável pelo Deploy | Desenvolvimento do frontend e backend, integração dos componentes da aplicação e implantação do sistema em produção. |
-| **Gabriel** | Engenharia de Prompts e Ideação | Elaboração e aprimoramento dos prompts utilizados no projeto, desenvolvimento de ideias e contribuição para a definição do conceito da aplicação. |
-| **Gabriela** | Design e Identidade Visual | Criação da identidade visual, desenvolvimento da logo e contribuição para o design da interface da aplicação. |
-| **Elcio** | Banco de Dados e Autenticação | Responsável pela estruturação e gerenciamento do banco de dados, além da implementação e configuração da autenticação utilizando Firebase Authentication. |
+| **Thiago Ferreira de Oliveira** | Desenvolvedor Full Stack e responsável pelo Deploy | Desenvolvimento do frontend e backend, integração dos componentes da aplicação e implantação do sistema em produção. |
+| **Gabriel Balbino Malaquias** | Engenharia de Prompts e Ideação | Elaboração e aprimoramento dos prompts utilizados no projeto, desenvolvimento de ideias e contribuição para a definição do conceito da aplicação. |
+| **Gabrielle Preis** | Design e Identidade Visual | Criação da identidade visual, desenvolvimento da logo e contribuição para o design da interface da aplicação. |
+| **Elcio Silveira Mello** | Banco de Dados e Autenticação | Responsável pela estruturação e gerenciamento do banco de dados, além da implementação e configuração da autenticação utilizando Firebase Authentication. |
 
 ### Desenvolvimento Colaborativo
 
