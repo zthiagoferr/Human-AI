@@ -22,6 +22,29 @@ Jogo educacional de letramento digital em que o aluno lê 22 citações e decide
 
 O fluxo é linear: **login → jogo → resultado → ranking**. Não há menu de navegação; apenas botões contextuais em cada tela.
 
+## Equipe
+
+### Divisão de responsabilidades
+
+O **Human-AI** é um projeto acadêmico desenvolvido em grupo, resultado da colaboração entre quatro integrantes. Cada membro assumiu responsabilidades específicas, contribuindo com suas habilidades e conhecimentos para o planejamento, desenvolvimento e implantação da aplicação.
+
+#### Integrantes e suas contribuições
+
+| Integrante | Função | Responsabilidades |
+|---|---|---|
+| **Thiago** | Desenvolvedor Full Stack e responsável pelo Deploy | Desenvolvimento do frontend e backend, integração dos componentes da aplicação e implantação do sistema em produção. |
+| **Gabriel** | Engenharia de Prompts e Ideação | Elaboração e aprimoramento dos prompts utilizados no projeto, desenvolvimento de ideias e contribuição para a definição do conceito da aplicação. |
+| **Gabriela** | Design e Identidade Visual | Criação da identidade visual, desenvolvimento da logo e contribuição para o design da interface da aplicação. |
+| **Elcio** | Banco de Dados e Autenticação | Responsável pela estruturação e gerenciamento do banco de dados, além da implementação e configuração da autenticação utilizando Firebase Authentication. |
+
+### Desenvolvimento Colaborativo
+
+O desenvolvimento do Human-AI foi realizado de maneira colaborativa, com a divisão de tarefas entre os integrantes da equipe.
+
+As contribuições individuais foram fundamentais para a construção de uma aplicação que integra desenvolvimento web, inteligência artificial, identidade visual, persistência de dados e autenticação de usuários.
+
+**O Human-AI representa o esforço coletivo de toda a equipe**, valorizando as responsabilidades e contribuições de cada integrante para a realização do projeto.
+
 ## Stack
 
 - **Front-end:** Angular 20, componentes standalone, signals, rotas, `HttpClient`, formulários reativos e SCSS.
