@@ -19,6 +19,10 @@ __pycache__/
 .env
 .env.*
 !.env.example
+# URL de migração (contém senha); nunca versionar
+.database_url
+.database_url.*
+*.database_url
 
 # Credenciais e materiais restritos
 *firebase-adminsdk*.json
