@@ -3,12 +3,12 @@
 ## 1. Visão geral
 
 - **Front-end:** Angular 20 em `http://localhost:4200` (dev) e em `https://zthiagoferr.github.io/Human-AI/` (prévia no GitHub Pages).
-- **Back-end:** FastAPI/Uvicorn em `http://localhost:8000`; a API pública ainda **não** foi publicada.
+- **Back-end:** FastAPI/Uvicorn em `http://localhost:8000`; preparado para Railway, mas a API pública ainda **não** foi implantada.
 - **Base da API:** `http://localhost:8000/api` em desenvolvimento; `environment.prod.ts` usa `apiUrl: ''` até a API pública existir.
-- **Banco:** SQLite `backend/humanai.db`.
+- **Banco:** SQLite `backend/humanai.db` em desenvolvimento/testes; PostgreSQL persistente no Railway em produção.
 - **Formato:** JSON camelCase; datas ISO 8601 UTC.
 - **Autenticação:** Firebase Authentication (e-mail/senha) no frontend; `Authorization: Bearer <ID Token>` na API.
-- **Identidade local:** `usuarios.firebase_uid` (único); SQLite continua sendo o banco de partidas/ranking.
+- **Identidade local:** `usuarios.firebase_uid` (único); o banco relacional guarda partidas/ranking.
 - **Hospedagem:** o GitHub Pages publica somente o build estático do Angular; o FastAPI não é executado no Pages.
 
 ## 2. Autenticação
@@ -526,7 +526,11 @@ Credenciais: false
 Max-Age: 600
 ```
 
-Configurável por `HUMANAI_CORS_ORIGINS` (vírgula). Em produção, usar apenas a origem real.
+Configurável por `HUMANAI_CORS_ORIGINS` (vírgula). Em desenvolvimento:
+`http://localhost:4200,http://127.0.0.1:4200`.
+Em produção:
+`https://zthiagoferr.github.io` (sem barra final).
+Não usar `*`; `allow_credentials=False`.
 
 ## 10. Front-end
 
@@ -603,11 +607,13 @@ Esta é uma **demonstração**. Em uso real:
 6. **Gabarito:** manter `backend/` privado; não versionar PDF; não servir `app/data`.
 7. **LGPD:** ranking com nomes exige base legal, consentimento e política de privacidade.
 8. **Docs:** desabilitar `/docs` e `/openapi.json` em produção.
-9. **Credencial Admin:** a chave antiga deve ser revogada; a nova fica fora do repositório. Nunca no frontend.
+9. **Credencial Admin:** a chave antiga deve ser revogada; a nova fica fora do repositório. Nunca no frontend. Em produção, preferir `HUMANAI_FIREBASE_CREDENTIALS_JSON` como secret.
 10. **API key pública:** restringir por domínio/HTTP referrer no Google Cloud Console; incluir `https://zthiagoferr.github.io/*`.
 11. **GitHub Pages:** adicionar `zthiagoferr.github.io` aos Authorized domains; publicar somente o build do frontend.
 12. **Repositório público:** o código do backend e o JSON de cartas são visíveis por decisão do projeto; o app não os serve, mas o arquivo pode ser lido no GitHub. Rever antes de uso real.
 13. **CORS futuro:** incluir `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS`; API deve ser HTTPS.
+14. **Railway/PostgreSQL:** `DATABASE_URL` e `HUMANAI_FIREBASE_CREDENTIALS_JSON` são secrets; não logar URL, senha, caminho ou JSON.
+15. **SQLite em produção:** recusado por `HUMANAI_ENV=production`; usar PostgreSQL persistente.
 
 ## 12. Testes
 
@@ -631,6 +637,7 @@ Cobrir:
 - Ranking com 220 usuários, empates, melhor tentativa, posição própria.
 - Migração não destrutiva e preservação de dados/ranking.
 - Segurança: CORS, 401/403/410, sem vazamento antes do fim.
+- Produção: normalização de `DATABASE_URL`, precedência, fail-fast de SQLite, `producao` com `production`, modelo sem `NOCASE` no PG, índice `lower(usuario)`, health 503, credencial Firebase JSON e smoke opcional em PostgreSQL (`HUMANAI_TEST_POSTGRES_URL`).
 
 ### Front-end
 
@@ -654,14 +661,61 @@ grep -n '<base href=' dist/humano-ou-ia/browser/index.html
 
 - Rodar o back-end a partir de `backend/`.
 - `uvicorn app.main:app --reload --port 8000`.
-- Um worker no SQLite.
-- Migração automática no startup: `firebase_uid`, índice único e `codigos_vinculo`; idempotente.
-- Rodar `python scripts/migrar_firebase.py` para aplicar/verificar e comparar contagens.
+- Em dev, SQLite; em produção, PostgreSQL (Railway).
+- Migração automática no startup: `firebase_uid`, índice único e `codigos_vinculo`; idempotente; no PG cria índice `lower(usuario)` e view com `CREATE OR REPLACE`.
+- Rodar `python scripts/migrar_firebase.py` para aplicar/verificar e comparar contagens (SQLite local).
+- Migração SQLite → PostgreSQL: `python scripts/migrar_sqlite_para_postgres.py --dry-run` e depois `--executar`; preserva IDs, ajusta sequences e não altera o SQLite.
 - Gerar código de vínculo: `python scripts/gerar_codigo_vinculo.py --usuario ana.lima`.
-- Resetar banco (apenas desenvolvimento): parar servidor e apagar `humanai.db` (e `-wal`/`-shm`). Nunca em produção sem backup.
-- Logs sem tokens, senhas, credenciais ou corpos sensíveis.
-- Backup: copiar o arquivo SQLite com o servidor parado.
-- Credencial Admin: `GOOGLE_APPLICATION_CREDENTIALS`/ADC; nunca versionar.
+- Resetar banco SQLite (apenas desenvolvimento): parar servidor e apagar `humanai.db` (e `-wal`/`-shm`). Nunca em produção sem backup.
+- Logs sem tokens, senhas, credenciais, URL do banco ou corpos sensíveis.
+- Backup: SQLite com servidor parado; PostgreSQL com `pg_dump`/snapshot do Railway, guardado fora do repositório.
+- Credencial Admin: `HUMANAI_FIREBASE_CREDENTIALS_JSON` (secret), `GOOGLE_APPLICATION_CREDENTIALS` ou ADC; nunca versionar.
 - Deploy do frontend: push em `main` ou `gh workflow run deploy-pages.yml`; monitorar com `gh run list`/`gh run view`.
+- Deploy do backend: serviço Railway com Root Directory `backend`, Dockerfile, PostgreSQL e domínio; ainda não realizado.
 - GitHub Pages: ativar em Settings → Pages → Source: GitHub Actions antes do primeiro deploy.
 - Rollback: novo commit com correção e novo deploy; nunca force push.
+
+## 14. Produção — Railway + PostgreSQL
+
+### 14.1 Variáveis
+
+```env
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+HUMANAI_ENV=production
+HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442
+HUMANAI_CORS_ORIGINS=https://zthiagoferr.github.io
+HUMANAI_DOCS_ENABLED=false
+HUMANAI_FIREBASE_CREDENTIALS_JSON=<json secreto>
+```
+
+Opcionais: `HUMANAI_PROFESSOR_EMAILS`, `HUMANAI_FIREBASE_CHECK_REVOKED`, `HUMANAI_VINCULO_TTL_HOURS`, `HUMANAI_RANKING_MAX_LIMIT`.
+
+- `DATABASE_URL` tem precedência sobre `HUMANAI_DATABASE_URL`.
+- `postgres://`/`postgresql://` são normalizados para `postgresql+psycopg://`.
+- `?ssl=require` é convertido para `?sslmode=require` se não houver `sslmode`.
+- `HUMANAI_ENV=production` recusa SQLite.
+- `PORT` é injetada pelo Railway; o container usa `${PORT:-8080}`.
+- `HUMANAI_FIREBASE_CREDENTIALS_JSON` deve ser secret e validado contra `project_id=human-ai-5c442`.
+
+### 14.2 Imagem e Railway
+
+- `backend/Dockerfile`: `python:3.13-slim`, `psycopg[binary]`, Uvicorn em `0.0.0.0:${PORT:-8080}`, usuário não-root.
+- `backend/.dockerignore`: exclui `.venv`, `.env`, bancos, testes, scripts e JSON de credencial; mantém `app/data/cartas_gabarito.json`.
+- `backend/railway.json`: healthcheck `/api/health`, restart em falha, uma réplica.
+- Serviço Railway: root directory `backend`, builder Dockerfile, PostgreSQL anexado, domínio público.
+
+### 14.3 Saúde e erros
+
+- `/api/health` executa `SELECT 1`; 200 confirma banco; 503 genérico se indisponível.
+- `SQLAlchemyError` não tratado retorna 503 genérico e loga apenas o tipo.
+- Startup com banco inválido falha com mensagem genérica, sem URL/senha.
+- Logs não incluem token, claims, credencial ou URL do banco.
+
+### 14.4 Migração de dados
+
+- Script `scripts/migrar_sqlite_para_postgres.py`.
+- Dry-run padrão; `--executar` para escrita.
+- Fonte SQLite em `mode=ro`; destino PostgreSQL.
+- Aborta se o destino tiver dados, se houver órfãos/duplicidades/campos longos ou schema incompatível.
+- Preserva IDs; ajusta sequences com `setval`.
+- Nunca apaga/trunca tabelas e nunca modifica o SQLite.

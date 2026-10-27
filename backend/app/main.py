@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import settings
@@ -20,7 +21,17 @@ logger = logging.getLogger("humanai")
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     inicializar_acervo()
-    init_db()
+    try:
+        init_db()
+    except Exception as exc:  # noqa: BLE001
+        logger.critical(
+            "Falha ao inicializar o banco de dados (%s).",
+            type(exc).__name__,
+        )
+        raise RuntimeError(
+            "Falha ao inicializar o banco de dados. "
+            "Verifique DATABASE_URL e o serviço PostgreSQL."
+        ) from None
     inicializar_firebase()
     yield
 
@@ -77,6 +88,17 @@ def create_app() -> FastAPI:
     @app.exception_handler(ErroAPI)
     async def erro_api_handler(_request: Request, exc: ErroAPI) -> JSONResponse:
         return _erro(exc.status_code, exc.codigo, exc.mensagem, exc.detalhes)
+
+    @app.exception_handler(SQLAlchemyError)
+    async def banco_indisponivel_handler(
+        _request: Request, exc: SQLAlchemyError
+    ) -> JSONResponse:
+        logger.error("Erro de banco (%s).", type(exc).__name__)
+        return _erro(
+            503,
+            "BANCO_INDISPONIVEL",
+            "Serviço temporariamente indisponível. Tente novamente.",
+        )
 
     @app.exception_handler(RequestValidationError)
     async def validacao_handler(

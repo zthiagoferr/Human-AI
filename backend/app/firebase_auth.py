@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from typing import Any
@@ -21,8 +22,39 @@ _inicializacao_tentada = False
 _disponivel = False
 
 
+def _validar_credencial_json(bruto: str, projeto: str) -> dict:
+    try:
+        info = json.loads(bruto)
+    except json.JSONDecodeError:
+        raise ValueError("HUMANAI_FIREBASE_CREDENTIALS_JSON inválido.") from None
+
+    if not isinstance(info, dict) or info.get("type") != "service_account":
+        raise ValueError(
+            "HUMANAI_FIREBASE_CREDENTIALS_JSON não é uma service account."
+        )
+    if info.get("project_id") != projeto:
+        raise ValueError(
+            "HUMANAI_FIREBASE_CREDENTIALS_JSON pertence a outro projeto."
+        )
+    return info
+
+
+def _carregar_credencial():
+    bruto = settings.firebase_credentials_json.strip()
+    if bruto:
+        return credentials.Certificate(
+            _validar_credencial_json(bruto, settings.firebase_project_id.strip())
+        )
+
+    caminho = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if caminho:
+        return credentials.Certificate(caminho)
+
+    return None  # ADC
+
+
 def inicializar_firebase() -> bool:
-    """Inicializa o Admin SDK via ADC ou GOOGLE_APPLICATION_CREDENTIALS.
+    """Inicializa o Admin SDK via JSON inline, arquivo ou ADC.
 
     Nunca imprime o caminho nem o conteúdo da credencial.
     """
@@ -48,8 +80,7 @@ def inicializar_firebase() -> bool:
         _app = firebase_admin.get_app()
     except ValueError:
         try:
-            caminho = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-            credencial = credentials.Certificate(caminho) if caminho else None
+            credencial = _carregar_credencial()
             _app = firebase_admin.initialize_app(
                 credencial,
                 options={"projectId": settings.firebase_project_id},
@@ -58,8 +89,9 @@ def inicializar_firebase() -> bool:
             if settings.producao:
                 raise RuntimeError(
                     "Firebase Admin não pôde ser inicializado. "
-                    "Verifique GOOGLE_APPLICATION_CREDENTIALS/ADC."
-                ) from exc
+                    "Verifique HUMANAI_FIREBASE_CREDENTIALS_JSON, "
+                    "GOOGLE_APPLICATION_CREDENTIALS ou ADC."
+                ) from None
             logger.warning(
                 "Firebase Admin indisponível (%s). Endpoints autenticados retornarão 503.",
                 type(exc).__name__,

@@ -24,6 +24,9 @@ Human-AI/
 ├── backend/
 │   ├── .env.example
 │   ├── .gitignore
+│   ├── .dockerignore
+│   ├── Dockerfile
+│   ├── railway.json
 │   ├── requirements.txt
 │   ├── requirements-dev.txt
 │   ├── pyproject.toml
@@ -151,7 +154,7 @@ Não há NgRx. O estado é pequeno e local; signals evitam complexidade e atuali
 - O `baseHref` de produção é `/Human-AI/`; o desenvolvimento continua em `/`.
 - O roteador usa `withHashLocation()`: reload e deep link funcionam sem reescrita SPA no GitHub Pages.
 - O artefato publicado é somente `frontend/dist/humano-ou-ia/browser`; não inclui backend, JSON de cartas, `.env`, banco ou credencial.
-- A API FastAPI ainda não está publicada. `environment.prod.ts` usa `apiUrl: ''`; `apiIndisponivelInterceptor` e os gates de `AuthService` impedem chamadas e evitam sessão/contas órfãs. A UI informa a indisponibilidade em PT-BR e não simula resultados.
+- A API FastAPI está preparada para produção, mas ainda não foi implantada. `environment.prod.ts` usa `apiUrl: ''`; `apiIndisponivelInterceptor` e os gates de `AuthService` impedem chamadas e evitam sessão/contas órfãs. A UI informa a indisponibilidade em PT-BR e não simula resultados.
 - Quando a API for publicada, basta configurar `apiUrl` HTTPS, incluir `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS` e redeployar.
 
 ## 4. Arquitetura do back-end
@@ -202,10 +205,22 @@ HTTP (routers)
 
 ### 4.5 CORS
 
-- Origens explícitas: `http://localhost:4200` e `http://127.0.0.1:4200`.
+- Origens explícitas: `http://localhost:4200` e `http://127.0.0.1:4200` em dev.
+- Produção: `https://zthiagoferr.github.io` (sem barra final).
 - Sem `*`; sem credenciais de cookie.
 - Headers: `Authorization`, `Content-Type`, `Accept`.
 - Métodos: `GET`, `POST`, `OPTIONS`.
+
+### 4.6 Banco e hospedagem de produção
+
+- Desenvolvimento/testes: SQLite (WAL, foreign keys, busy timeout).
+- Produção: PostgreSQL persistente no Railway via `DATABASE_URL`; `HUMANAI_ENV=production` recusa SQLite.
+- `DATABASE_URL` normalizada para `postgresql+psycopg://`; `postgres://` e `?ssl=require` são convertidos.
+- `init_db()` é idempotente: `create_all`, migração de `firebase_uid`, índices por dialeto e view `vw_ranking`.
+- No PostgreSQL, unicidade de handle usa índice em `lower(usuario)`; no SQLite, `COLLATE NOCASE`.
+- `init_db()` usa advisory lock no PostgreSQL para reduzir concorrência de startup.
+- A imagem Docker (`python:3.13-slim`) roda Uvicorn em `0.0.0.0:${PORT:-8080}`, com healthcheck `/api/health`.
+- A API ainda não foi implantada; o frontend permanece em prévia até a URL real existir.
 
 ## 5. Fluxo de dados
 
@@ -263,7 +278,8 @@ environment.prod.apiUrl === ''
 | Decisão | Alternativa | Por que |
 |---|---|---|
 | FastAPI | Flask | Validação tipada, OpenAPI, injeção de dependências e menos boilerplate para REST |
-| SQLite | PostgreSQL | Zero configuração para demonstração; WAL e índices suportam 200+ alunos |
+| SQLite | PostgreSQL | Dev/testes com zero configuração; produção usa PostgreSQL persistente no Railway |
+| PostgreSQL no Railway | SQLite em volume | Persistência real, backups e concorrência; evita banco efêmero no container |
 | SQLAlchemy 2.0 | SQL puro | Transações, modelos e legibilidade; DDL documentado separadamente |
 | Firebase Authentication | Autenticação própria | Provedor maduro para senha, reset e ID Tokens; remove Argon2/sessões próprias |
 | Firebase JS SDK modular | AngularFire | SDK agnóstico de framework; evita acoplamento de peer dependency com Angular 20 |
@@ -279,7 +295,7 @@ environment.prod.apiUrl === ''
 | Ordem fixa #01–#22 | Embaralhar | Preserva a numeração do PDF e a conferência; não há requisito de embaralhar |
 | Sem Angular Material | Material | O design editorial exige controle total de tipografia, papel e filetes |
 | Persistência local do Firebase | sessionStorage próprio | Sobrevive a recarregamentos; o SDK gerencia refresh e armazenamento |
-| Uvicorn 1 worker | Vários workers | SQLite não é ideal para escrita concorrente multi-processo |
+| Uvicorn 1 worker | Vários workers | Evita concorrência de startup nesta fase; PostgreSQL permite escala posterior |
 
 ## 7. Segurança e limites
 
@@ -297,6 +313,9 @@ environment.prod.apiUrl === ''
 - **HTTPS:** obrigatório em produção.
 - **LGPD:** ranking exibe nomes; obter consentimento/base legal e limitar acesso.
 - **Credencial Firebase:** chave antiga comprometida; revogar e usar nova fora do repositório.
+- **Firebase Admin em produção:** preferir `HUMANAI_FIREBASE_CREDENTIALS_JSON` como secret; validar `project_id`; nunca logar caminho/conteúdo.
+- **Banco de produção:** `DATABASE_URL` é secret; não logar URL/senha; `HUMANAI_ENV=production` recusa SQLite.
+- **Logs:** handler de `SQLAlchemyError` retorna 503 genérico; erros de startup não expõem URL; access logs sem headers sensíveis.
 - **Artefato do Pages:** publicar somente `frontend/dist/humano-ou-ia/browser`; workflow verifica ausência de JSON, `.env`, banco, credencial e URL local.
 - **Repositório público:** o código do backend e o JSON de cartas são visíveis no GitHub por decisão do projeto; o app não os serve, mas o arquivo pode ser lido no repositório. Risco aceito nesta fase, a rever antes de uso real.
 - **Firebase/Pages:** `zthiagoferr.github.io` precisa estar em Authorized domains; a API key pública deve permitir o referrer do Pages.
@@ -306,8 +325,8 @@ environment.prod.apiUrl === ''
 
 - Consulta de ranking com view + índices parciais; payload de 500 linhas é pequeno.
 - Uma linha por aluno, não uma por tentativa.
-- SQLite em WAL suporta leituras concorrentes; escritas são serializadas.
-- Para escala maior: PostgreSQL, cache do ranking e SSE/WebSocket.
+- PostgreSQL em produção suporta leituras/escritas concorrentes; SQLite fica restrito a dev/testes.
+- Para escala maior: cache do ranking e SSE/WebSocket.
 
 ## 9. Testes
 
@@ -317,7 +336,8 @@ environment.prod.apiUrl === ''
 - **Respostas:** 22 exatas, duplicata, carta inválida, pontuação, idempotência, duração do servidor.
 - **Ranking:** 220 usuários, ordenação, desempate, melhor tentativa, posição própria, paginação.
 - **Vínculo:** códigos, expiração, uso único, shell com partidas, preservação do legado.
-- **Migração:** coluna `firebase_uid`, índice único, idempotência, preservação de contagens e ranking.
+- **Migração:** coluna `firebase_uid`, índice único, idempotência, preservação de contagens e ranking; migração PG/SQLite não destrutiva.
+- **Produção:** URL normalizada, fail-fast de SQLite, modelo compilado sem `NOCASE` no PG, índice `lower(usuario)`, health 503 de banco e smoke opcional em PostgreSQL.
 - **Segurança:** CORS, 401/403/410, ausência de gabarito antes do fim.
 - **Front:** guards, formulários, gateway fake, interceptor, persistência simulada, polling, renderização. O CI de Pages roda os 38 testes Angular com ChromeHeadless antes do build.
 
@@ -333,7 +353,14 @@ environment.prod.apiUrl === ''
 | Credencial Admin comprometida | Revogar chave antiga; nova chave fora do repositório; `.gitignore` |
 | Conta legada sem vínculo | Código emitido pelo professor; comunicação prévia |
 | Aluno joga antes de vincular | Link retorna 409; orientar vínculo antes da primeira partida |
-| SQLite lock | Um worker; WAL; busy timeout |
+| SQLite lock | Um worker em dev; WAL; busy timeout |
+| PostgreSQL indisponível | Health 503, restart policy, `pool_pre_ping`; logs sem detalhes |
+| Duplicidade case-insensitive ao migrar | Pré-validação e índice `lower(usuario)`; abortar sem alterar dados |
+| Sequences após cópia | `setval` para todas as tabelas; verificação de contagens |
+| URL Railway interna/publica | App usa `DATABASE_URL`; migração local usa URL pública com `sslmode=require` |
+| Credencial Admin ausente no deploy | Falha explícita no startup; configurar secret antes |
+| Nova chave Firebase vazando | JSON só em secret runtime; `.dockerignore`; logs sem conteúdo |
+| Python/wheels no Docker | Python 3.13 + `psycopg[binary]`; testar build; local 3.14 tem cp314 |
 | Trapaça no tempo | Timestamps do servidor |
 | Pressão por tempo | Explicar que o ranking não mede inteligência; adaptar avaliação |
 | Nomes no ranking | Política de privacidade/LGPD; acesso autenticado |

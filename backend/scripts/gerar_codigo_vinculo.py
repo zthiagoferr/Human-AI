@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 BACKEND = Path(__file__).resolve().parents[1]
 if str(BACKEND) not in sys.path:
@@ -37,7 +37,9 @@ def main() -> int:
             usuario = db.get(Usuario, args.usuario_id)
         else:
             usuario = db.scalar(
-                select(Usuario).where(Usuario.usuario == args.usuario)
+                select(Usuario).where(
+                    func.lower(Usuario.usuario) == args.usuario.strip().casefold()
+                )
             )
         if usuario is None:
             print("ERRO: usuário não encontrado.", file=sys.stderr)

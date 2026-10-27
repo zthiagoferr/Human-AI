@@ -4,7 +4,7 @@ Jogo educacional de letramento digital em que o aluno lê 22 citações e decide
 
 > **Demonstração educacional.** O acesso é feito pelo Firebase Authentication (e-mail e senha). Uso real exige HTTPS, limitação de tentativas/quotas, política de privacidade e revisão de segurança. Leia a seção **Segurança** antes de publicar.
 >
-> **Publicação atual:** a interface Angular está publicada em `https://zthiagoferr.github.io/Human-AI/` como **prévia**. A API FastAPI ainda **não** foi publicada; por isso, login completo, partida, resultado e ranking não funcionam nesse endereço. Nenhum resultado é simulado.
+> **Publicação atual:** a interface Angular está publicada em `https://zthiagoferr.github.io/Human-AI/` como **prévia**. O backend FastAPI está **preparado para produção no Railway/PostgreSQL**, mas ainda **não foi implantado**; por isso, login completo, partida, resultado e ranking não funcionam nesse endereço. Nenhum resultado é simulado.
 
 ## O que o jogo faz
 
@@ -25,9 +25,9 @@ O fluxo é linear: **login → jogo → resultado → ranking**. Não há menu d
 ## Stack
 
 - **Front-end:** Angular 20, componentes standalone, signals, rotas, `HttpClient`, formulários reativos e SCSS.
-- **Back-end:** Python 3.12+, FastAPI, Uvicorn, SQLAlchemy 2.0 e SQLite.
+- **Back-end:** Python 3.12+, FastAPI, Uvicorn, SQLAlchemy 2.0; SQLite em desenvolvimento/testes e PostgreSQL em produção.
 - **Autenticação:** Firebase Authentication (e-mail/senha) no frontend; `firebase-admin` valida ID Tokens no backend.
-- **Banco:** SQLite; a identidade local é vinculada por `firebase_uid`. Hashes de senha antigos permanecem inertes.
+- **Banco:** SQLite local; PostgreSQL persistente no Railway em produção. A identidade local é vinculada por `firebase_uid`. Hashes de senha antigos permanecem inertes.
 - **Gabarito:** JSON exclusivo do back-end, nunca servido ao front-end antes da finalização.
 - **PDF:** extração com `pypdf` e/ou `pdftotext`; transcrição manual fiel para o JSON.
 
@@ -42,6 +42,44 @@ A interface Angular é publicada em **`https://zthiagoferr.github.io/Human-AI/`*
 - **Firebase:** adicione `zthiagoferr.github.io` em **Authentication → Settings → Authorized domains** e mantenha `localhost` para o desenvolvimento.
 - **Quando a API existir:** publique-a em HTTPS, preencha `environment.prod.ts` com a URL real, inclua a origem `https://zthiagoferr.github.io` em `HUMANAI_CORS_ORIGINS` e faça novo deploy.
 
+## Produção do backend no Railway + PostgreSQL
+
+**Status:** o código está preparado, mas o serviço Railway e o PostgreSQL **ainda não foram criados**. O frontend continua em modo de prévia (`apiUrl: ''`) até a URL real da API existir.
+
+- **Imagem:** `backend/Dockerfile` com `python:3.13-slim`, `psycopg[binary]` e `uvicorn` em `0.0.0.0:${PORT:-8080}`.
+- **Configuração Railway:** `backend/railway.json` com healthcheck em `/api/health`, restart em falha e uma réplica. O **Root Directory** do serviço deve ser `backend`.
+- **Banco:** serviço PostgreSQL do Railway; o app usa `DATABASE_URL` (precedência) e recusa SQLite quando `HUMANAI_ENV=production`.
+- **Credencial Firebase Admin:** `HUMANAI_FIREBASE_CREDENTIALS_JSON` (JSON inline, secret) ou `GOOGLE_APPLICATION_CREDENTIALS`/ADC localmente. Nunca versionar.
+- **CORS de produção:** `HUMANAI_CORS_ORIGINS=https://zthiagoferr.github.io` (sem barra final).
+- **Docs:** `HUMANAI_DOCS_ENABLED=false` em produção.
+- **Dados locais:** o script `backend/scripts/migrar_sqlite_para_postgres.py` copia o SQLite local para o PostgreSQL de forma não destrutiva, preservando IDs e ajustando sequences. O SQLite original nunca é apagado.
+
+Variáveis mínimas no Railway:
+
+```env
+DATABASE_URL=${{Postgres.DATABASE_URL}}
+HUMANAI_ENV=production
+HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442
+HUMANAI_CORS_ORIGINS=https://zthiagoferr.github.io
+HUMANAI_DOCS_ENABLED=false
+HUMANAI_FIREBASE_CREDENTIALS_JSON=<json secreto da service account>
+```
+
+Migração local, usando a URL **pública** do PostgreSQL e sem imprimir o valor:
+
+```bash
+cd backend
+source .venv/bin/activate
+pip install -r requirements.txt
+read -r -s -p "DATABASE_PUBLIC_URL: " DATABASE_URL; echo
+export DATABASE_URL
+python scripts/migrar_sqlite_para_postgres.py --dry-run
+python scripts/migrar_sqlite_para_postgres.py --executar
+unset DATABASE_URL
+```
+
+Não há automação de criação de serviços/deploy neste repositório; isso é uma etapa manual do responsável pelo Railway.
+
 ## Estrutura do repositório
 
 ```text
@@ -54,6 +92,9 @@ A interface Angular é publicada em **`https://zthiagoferr.github.io/Human-AI/`*
 │   ├── app/
 │   ├── scripts/
 │   ├── tests/
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── railway.json
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
@@ -84,6 +125,7 @@ A interface Angular é publicada em **`https://zthiagoferr.github.io/Human-AI/`*
    ```bash
    export GOOGLE_APPLICATION_CREDENTIALS=/caminho/fora-do-repo/nova-chave-human-ai-5c442.json
    ```
+   No Railway, prefira `HUMANAI_FIREBASE_CREDENTIALS_JSON` com o JSON inline em uma variável secreta.
 5. Copie `backend/.env.example` para `backend/.env` e ajuste `HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442` e, se houver professor, `HUMANAI_PROFESSOR_EMAILS`.
 6. Nunca coloque a chave Admin no frontend, no Git ou em `firebase.config.ts`.
 
@@ -247,6 +289,8 @@ pip install -r requirements-dev.txt
 pytest -q
 ```
 
+O driver PostgreSQL é `psycopg[binary]` (já em `requirements.txt`). Para rodar o smoke opcional em PostgreSQL real, defina `HUMANAI_TEST_POSTGRES_URL` e use um banco/schema descartável. Sem a variável, o teste é ignorado.
+
 Front-end:
 
 ```bash
@@ -279,6 +323,8 @@ Esta é uma **demonstração**. Antes de qualquer uso real:
 - configure **quotas e proteção contra abuso** no Firebase/Identity Platform e rate limiting no backend;
 - mantenha a **API key pública** restrita por domínio/HTTP referrer no Google Cloud Console; ao publicar no Pages, inclua `https://zthiagoferr.github.io/*` e teste o login;
 - **GitHub Pages:** adicione `zthiagoferr.github.io` aos domínios autorizados do Firebase; o artefato publicado deve conter somente `frontend/dist/humano-ou-ia/browser`;
+- **Railway:** `DATABASE_URL` contém senha e `HUMANAI_FIREBASE_CREDENTIALS_JSON` contém a chave Admin; ambos devem ser secrets no Railway e nunca aparecer em logs, build, Dockerfile ou Git;
+- **SQLite em produção:** recusado por `HUMANAI_ENV=production`; use PostgreSQL persistente;
 - **Repositório público:** o código do backend e o JSON de cartas ficam visíveis no GitHub por decisão do projeto. Isso não envia o gabarito pelo app, mas permite leitura direta do arquivo no repositório; avalie separar o backend em repositório privado antes de uso real com alunos;
 - **CORS futuro:** quando a API for publicada, use apenas a origem `https://zthiagoferr.github.io` (sem caminho e sem barra final) em `HUMANAI_CORS_ORIGINS`;
 - aplique **CSP** e evite qualquer `innerHTML`: o SDK persiste a sessão no navegador;
@@ -297,7 +343,12 @@ Esta é uma **demonstração**. Antes de qualquer uso real:
 |---|---|---|
 | `CORS policy` no navegador | Origem diferente de `localhost:4200` | Ajuste `HUMANAI_CORS_ORIGINS` e reinicie o back-end |
 | Back-end não inicia | JSON de cartas incompleto/inválido | Rode `python scripts/validar_cartas.py` e corrija |
-| `AUTENTICACAO_INDISPONIVEL` | Credencial Admin ausente/inválida | Exporte `GOOGLE_APPLICATION_CREDENTIALS` ou configure ADC; reinicie |
+| `AUTENTICACAO_INDISPONIVEL` | Credencial Admin ausente/inválida | Exporte `GOOGLE_APPLICATION_CREDENTIALS` ou configure `HUMANAI_FIREBASE_CREDENTIALS_JSON`/ADC; reinicie |
+| Backend em produção recusa iniciar | `HUMANAI_ENV=production` com SQLite ou sem `DATABASE_URL` | Crie PostgreSQL no Railway e configure `DATABASE_URL`; SQLite é apenas dev/teste |
+| `/api/health` retorna 503 | Banco indisponível no health check | Verifique o serviço PostgreSQL, `DATABASE_URL` e logs do Railway |
+| `psycopg` não instala | Wheel incompatível ou dependência ausente | Use `psycopg[binary]>=3.2,<4.0`; a imagem usa Python 3.13 com wheel manylinux |
+| Migração abortada | Duplicidade/órfão/limite de campo no SQLite | Corrija a origem ou use uma cópia consistente; nenhuma alteração é feita no SQLite |
+| `railway logs` com credencial | Variável impressa por engano | Nunca rode `railway variables` em log compartilhado; rotacione o segredo |
 | `auth/invalid-api-key` ou configuração incompleta | `firebase.config.ts` vazio/incorreto | Copie a configuração pública do Web App no Console |
 | `auth/unauthorized-domain` | Domínio não autorizado | Adicione `zthiagoferr.github.io` (e mantenha `localhost`) em Authentication → Settings → Authorized domains |
 | “API do jogo não está configurada” no Pages | `environment.prod.ts` com `apiUrl: ''` | Esperado enquanto a API não for publicada; para ativar, preencha a URL HTTPS e faça novo deploy |

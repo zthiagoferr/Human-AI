@@ -1,4 +1,9 @@
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.config import Settings
+from app.database import get_db
 from app.domain.cartas import get_acervo
+from app.main import app
 from tests.fakes import headers_para
 
 
@@ -62,3 +67,35 @@ def test_cache_control_em_rota_autenticada(client, firebase):
     resposta = client.get("/api/auth/me", headers=headers)
     assert resposta.headers["cache-control"] == "no-store"
     assert resposta.headers["x-content-type-options"] == "nosniff"
+
+
+def test_health_banco_indisponivel_retorna_503_generico(client):
+    class SessaoFalha:
+        def execute(self, *_args, **_kwargs):
+            raise SQLAlchemyError("detalhe interno que não deve aparecer")
+
+    def db_falha():
+        yield SessaoFalha()
+
+    app.dependency_overrides[get_db] = db_falha
+    try:
+        resposta = client.get("/api/health")
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+
+    assert resposta.status_code == 503
+    assert resposta.json()["erro"]["codigo"] == "BANCO_INDISPONIVEL"
+    assert "detalhe interno" not in resposta.text
+    assert "postgres" not in resposta.text.lower()
+    assert "sqlite" not in resposta.text.lower()
+
+
+def test_cors_lista_aceita_espacos():
+    config = Settings(
+        _env_file=None,
+        cors_origins=" https://zthiagoferr.github.io , http://localhost:4200 ",
+    )
+    assert config.cors_origins_list == [
+        "https://zthiagoferr.github.io",
+        "http://localhost:4200",
+    ]

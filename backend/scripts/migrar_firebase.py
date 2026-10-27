@@ -43,6 +43,14 @@ def _contagens() -> dict[str, int]:
 
 
 def main() -> int:
+    if engine.dialect.name != "sqlite":
+        print(
+            "Este script é específico de SQLite. "
+            "Em PostgreSQL, use scripts/migrar_sqlite_para_postgres.py.",
+            file=sys.stderr,
+        )
+        return 2
+
     antes = _contagens()
     print("Antes:", antes)
 

@@ -1,7 +1,7 @@
 import re
 import unicodedata
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -70,7 +70,14 @@ def _candidato_usuario(base: str, indice: int) -> str:
 
 
 def _usuario_existe(db: Session, candidato: str) -> bool:
-    return db.scalar(select(Usuario.id).where(Usuario.usuario == candidato)) is not None
+    return (
+        db.scalar(
+            select(Usuario.id).where(
+                func.lower(Usuario.usuario) == candidato.casefold()
+            )
+        )
+        is not None
+    )
 
 
 def obter_por_uid(db: Session, uid: str) -> Usuario | None:

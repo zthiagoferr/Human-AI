@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 TEST_DIR = Path(tempfile.mkdtemp(prefix="humanai-test-"))
+os.environ.pop("DATABASE_URL", None)
 os.environ["HUMANAI_ENV"] = "test"
 os.environ["HUMANAI_DATABASE_URL"] = f"sqlite:///{TEST_DIR / 'test.db'}"
 os.environ["HUMANAI_CARTAS_PATH"] = "app/data/cartas_gabarito.json"

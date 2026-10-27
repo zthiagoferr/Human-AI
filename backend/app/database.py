@@ -4,12 +4,17 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.config import settings
+from app.config import settings, validar_database_url
 from app.migrations import aplicar_migracoes
 
 
 class Base(DeclarativeBase):
     pass
+
+
+URL_EFETIVA = settings.database_url_efetiva
+validar_database_url(URL_EFETIVA, settings.producao)
+IS_SQLITE = URL_EFETIVA.startswith("sqlite")
 
 
 def _configurar_sqlite(engine: Engine) -> None:
@@ -24,17 +29,17 @@ def _configurar_sqlite(engine: Engine) -> None:
 
 
 engine = create_engine(
-    settings.database_url,
-    connect_args={"check_same_thread": False},
+    URL_EFETIVA,
+    connect_args={"check_same_thread": False} if IS_SQLITE else {},
     pool_pre_ping=True,
 )
-_configurar_sqlite(engine)
+if IS_SQLITE:
+    _configurar_sqlite(engine)
+
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
-INDEX_SQL = (
-    "CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_usuario "
-    "ON usuarios(usuario COLLATE NOCASE)",
+INDEX_SQL_COMUM = (
     "CREATE INDEX IF NOT EXISTS ix_usuarios_nome_ordenacao ON usuarios(nome_ordenacao)",
     "CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_firebase_uid "
     "ON usuarios(firebase_uid) WHERE firebase_uid IS NOT NULL",
@@ -53,6 +58,16 @@ INDEX_SQL = (
     "CREATE INDEX IF NOT EXISTS ix_partida_cartas_partida "
     "ON partida_cartas(partida_id, posicao)",
     "CREATE INDEX IF NOT EXISTS ix_respostas_partida ON respostas(partida_id)",
+)
+
+INDEX_SQL_SQLITE = (
+    "CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_usuario "
+    "ON usuarios(usuario COLLATE NOCASE)",
+)
+
+INDEX_SQL_POSTGRES = (
+    "CREATE UNIQUE INDEX IF NOT EXISTS ux_usuarios_usuario "
+    "ON usuarios (lower(usuario))",
 )
 
 VIEW_SQL = """
@@ -88,18 +103,47 @@ JOIN usuarios u ON u.id = m.usuario_id
 WHERE m.rn = 1
 """
 
+VIEW_SQL_POSTGRES = VIEW_SQL.replace("CREATE VIEW", "CREATE OR REPLACE VIEW", 1)
+
 
 def init_db(target_engine: Engine | None = None) -> None:
     from app import models  # noqa: F401  (registra as tabelas no metadata)
 
     db_engine = target_engine or engine
-    Base.metadata.create_all(bind=db_engine)
-    aplicar_migracoes(db_engine)
-    with db_engine.begin() as connection:
-        for statement in INDEX_SQL:
-            connection.exec_driver_sql(statement)
-        connection.exec_driver_sql("DROP VIEW IF EXISTS vw_ranking")
-        connection.exec_driver_sql(VIEW_SQL)
+    dialeto = db_engine.dialect.name
+    lock_conn = None
+    if dialeto == "postgresql":
+        lock_conn = db_engine.connect()
+        lock_conn.exec_driver_sql(
+            "SELECT pg_advisory_lock(hashtext('humanai_init_db'))"
+        )
+
+    try:
+        Base.metadata.create_all(bind=db_engine)
+        aplicar_migracoes(db_engine)
+        with db_engine.begin() as connection:
+            for statement in INDEX_SQL_COMUM:
+                connection.exec_driver_sql(statement)
+
+            if dialeto == "sqlite":
+                for statement in INDEX_SQL_SQLITE:
+                    connection.exec_driver_sql(statement)
+                connection.exec_driver_sql("DROP VIEW IF EXISTS vw_ranking")
+                connection.exec_driver_sql(VIEW_SQL)
+            elif dialeto == "postgresql":
+                for statement in INDEX_SQL_POSTGRES:
+                    connection.exec_driver_sql(statement)
+                connection.exec_driver_sql(VIEW_SQL_POSTGRES)
+            else:
+                raise RuntimeError(f"Dialeto de banco não suportado: {dialeto}")
+    finally:
+        if lock_conn is not None:
+            try:
+                lock_conn.exec_driver_sql(
+                    "SELECT pg_advisory_unlock(hashtext('humanai_init_db'))"
+                )
+            finally:
+                lock_conn.close()
 
 
 def get_db() -> Generator[Session, None, None]:

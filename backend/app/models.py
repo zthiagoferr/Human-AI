@@ -19,7 +19,10 @@ class Usuario(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nome: Mapped[str] = mapped_column(String(80), nullable=False)
     nome_ordenacao: Mapped[str] = mapped_column(String(160), nullable=False)
-    usuario: Mapped[str] = mapped_column(String(32, collation="NOCASE"), nullable=False)
+    usuario: Mapped[str] = mapped_column(
+        String(32).with_variant(String(32, collation="NOCASE"), "sqlite"),
+        nullable=False,
+    )
     senha_hash: Mapped[str] = mapped_column(Text, nullable=False)
     criado_em: Mapped[str] = mapped_column(String(40), nullable=False)
     firebase_uid: Mapped[str | None] = mapped_column(String(128), nullable=True)

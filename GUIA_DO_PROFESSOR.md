@@ -20,16 +20,16 @@ Ao final, o aluno deve ser capaz de:
 ## 3. Antes da aula
 
 1. Instale e rode o back-end e o front-end (ver `README.md`).
-2. **Atenção à publicação atual:** `https://zthiagoferr.github.io/Human-AI/` é apenas uma **prévia da interface**. A API FastAPI ainda não foi publicada; login completo, partida, resultado e ranking não funcionam nesse endereço. Não oriente alunos a usar a URL pública para a atividade até a API estar disponível.
+2. **Atenção à publicação atual:** `https://zthiagoferr.github.io/Human-AI/` é apenas uma **prévia da interface**. O backend está preparado para Railway/PostgreSQL, mas o serviço **ainda não foi implantado**; login completo, partida, resultado e ranking não funcionam nesse endereço. Não oriente alunos a usar a URL pública para a atividade até a API estar disponível.
 3. Configure o Firebase do projeto ativo `human-ai-5c442`:
    - habilite **Email/Password**;
    - cadastre o **Web App** e preencha `frontend/src/environments/firebase.config.ts` com a configuração pública;
    - adicione `localhost`, `zthiagoferr.github.io` e o domínio de produção aos **domínios autorizados**;
-   - gere uma nova chave de service account/ADC do projeto `human-ai-5c442` e exporte `GOOGLE_APPLICATION_CREDENTIALS` (nunca versionar).
+   - gere uma nova chave de service account/ADC do projeto `human-ai-5c442`; no Railway, use `HUMANAI_FIREBASE_CREDENTIALS_JSON` como secret (nunca versionar).
 4. Revogue a chave antiga de service account, se ainda existir.
 5. Crie/verifique a conta do professor no Firebase e coloque o e-mail em `HUMANAI_PROFESSOR_EMAILS` (o claim `email_verified` precisa ser `true`).
 6. Configure `HUMANAI_FIREBASE_PROJECT_ID=human-ai-5c442`.
-7. Faça backup de `backend/humanai.db`, `-wal` e `-shm` antes da primeira execução em banco existente.
+7. Faça backup de `backend/humanai.db`, `-wal` e `-shm` antes de qualquer migração.
 8. Verifique se as 22 cartas estão preenchidas e validadas:
    ```bash
    cd backend
@@ -38,9 +38,10 @@ Ao final, o aluno deve ser capaz de:
 9. Faça uma partida de teste com uma conta de demonstração.
 10. Teste cadastro, login, logout e recuperação de senha.
 11. Confira se o ranking abre e atualiza.
-12. Prepare os dispositivos: um por aluno ou um por dupla.
-13. Tenha o gabarito impresso ou aberto em uma tela separada, nunca projetada.
-14. Leia previamente as análises das cartas para conduzir o debate.
+12. Para produção, o responsável deve criar o PostgreSQL e o serviço Railway, configurar as variáveis, migrar os dados e só então apontar o frontend para a API.
+13. Prepare os dispositivos: um por aluno ou um por dupla.
+14. Tenha o gabarito impresso ou aberto em uma tela separada, nunca projetada.
+15. Leia previamente as análises das cartas para conduzir o debate.
 
 ## 4. Onde fica o gabarito
 
@@ -240,13 +241,16 @@ Rubrica sugerida (4 níveis):
 | Aluno não recebe e-mail de recuperação | Verifique spam; confirme o e-mail; o Firebase só envia para contas existentes. |
 | “Este e-mail já está cadastrado” | Use login ou recuperação de senha; não crie duplicata. |
 | Professor recebe 403 | Confirme `HUMANAI_PROFESSOR_EMAILS`, `email_verified=true` e reinicie o backend. |
-| `AUTENTICACAO_INDISPONIVEL` | Verifique `GOOGLE_APPLICATION_CREDENTIALS`/ADC e `HUMANAI_FIREBASE_PROJECT_ID`. |
+| `AUTENTICACAO_INDISPONIVEL` | Verifique `HUMANAI_FIREBASE_CREDENTIALS_JSON` (produção), `GOOGLE_APPLICATION_CREDENTIALS`/ADC e `HUMANAI_FIREBASE_PROJECT_ID`. |
+| Backend em produção não inicia | `HUMANAI_ENV=production` sem PostgreSQL ou sem credencial Firebase | Configure `DATABASE_URL` do PostgreSQL e o secret da service account no Railway |
+| `/api/health` retorna 503 | PostgreSQL indisponível | Verifique o serviço PostgreSQL e os logs do Railway |
+| Migração não destrutiva abortou | Duplicidade/órfão/campo longo no SQLite | Corrija a origem ou use uma cópia consistente; o SQLite não foi alterado |
 | “Já existe partida em andamento” | O jogo retoma automaticamente; se quiser recomeçar, use “Desistir da partida” |
 | Ranking não atualiza | Aguarde até 5 s; verifique conexão; recarregue a tela |
 | Resultado não abre | A partida pode não ter sido finalizada; volte ao jogo |
 | Aluno viu a análise antes | Verifique se não há outra aba com resultado; o gabarito só é liberado após o envio |
 | Turma sem internet | Rode tudo localmente; o front fala com `localhost:8000` e o Firebase precisa de rede |
-| URL pública mostra “API do jogo não está configurada” | A API ainda não foi publicada; a URL do Pages é apenas prévia da interface. Use o ambiente local ou aguarde a publicação da API |
+| URL pública mostra “API do jogo não está configurada” | O backend ainda não foi implantado; a URL do Pages é apenas prévia da interface. Use o ambiente local ou aguarde a publicação da API |
 | Erro de domínio não autorizado no Firebase | Adicione `zthiagoferr.github.io` em Authentication → Settings → Authorized domains |
 | Nomes no ranking | Combine apelidos ou nomes de exibição previamente |
 
@@ -271,13 +275,14 @@ A duração é registrada no servidor; pausas contam. Ele pode desistir e começ
 Explore exemplos ambíguos, peça evidências e mostre que humanos também usam clichês. O foco é a leitura, não a essência.
 
 **A versão pública no GitHub Pages já funciona para os alunos?**
-Não completamente. Ela publica apenas a interface Angular; a API FastAPI ainda não está disponível. Login completo, partida, resultado e ranking exigem o backend. A tela de login informa essa indisponibilidade e nenhum resultado é simulado.
+Não completamente. Ela publica apenas a interface Angular; o backend está preparado para Railway/PostgreSQL, mas ainda não foi implantado. Login completo, partida, resultado e ranking exigem o backend. A tela de login informa essa indisponibilidade e nenhum resultado é simulado.
 
 ## 13. Checklist rápido
 
 - [ ] Back-end e front-end rodando.
 - [ ] Firebase configurado (Email/Password, Web App, domínios autorizados, incluindo `zthiagoferr.github.io`).
 - [ ] Confirmado que a versão pública do Pages tem API configurada antes de indicar aos alunos.
+- [ ] Railway/PostgreSQL criado, variáveis configuradas e migração validada (quando for usar produção).
 - [ ] Credencial Admin nova/ADC configurada e chave antiga revogada.
 - [ ] `HUMANAI_PROFESSOR_EMAILS` configurado e e-mail verificado.
 - [ ] Backup do banco feito antes da migração.
